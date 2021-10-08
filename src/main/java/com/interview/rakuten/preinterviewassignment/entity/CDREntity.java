@@ -10,10 +10,10 @@ public class CDREntity {
     private long id;
 
     @Column(nullable = false)
-    private String anum;
+    private String ANUM;
 
     @Column(nullable = false)
-    private String bnum;
+    private String BNUM;
 
     @Column(nullable = false)
     private String serviceType;
@@ -38,20 +38,20 @@ public class CDREntity {
         this.id = id;
     }
 
-    public String getAnum() {
-        return anum;
+    public String getANUM() {
+        return ANUM;
     }
 
-    public void setAnum(String anum) {
-        this.anum = anum;
+    public void setANUM(String ANUM) {
+        this.ANUM = ANUM;
     }
 
-    public String getBnum() {
-        return bnum;
+    public String getBNUM() {
+        return BNUM;
     }
 
-    public void setBnum(String bnum) {
-        this.bnum = bnum;
+    public void setBNUM(String BNUM) {
+        this.BNUM = BNUM;
     }
 
     public String getServiceType() {

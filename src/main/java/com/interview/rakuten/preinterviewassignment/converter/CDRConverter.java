@@ -9,8 +9,8 @@ public class CDRConverter {
 
     public CDREntity convertDtoToEntity(CDRDto cdrDto) {
         CDREntity cdrEntity = new CDREntity();
-        cdrEntity.setAnum(cdrDto.getAnum());
-        cdrEntity.setBnum(cdrDto.getBnum());
+        cdrEntity.setANUM(cdrDto.getANUM());
+        cdrEntity.setBNUM(cdrDto.getBNUM());
         cdrEntity.setServiceType(cdrDto.getServiceType());
         cdrEntity.setCallCategory(cdrDto.getCallCategory());
         cdrEntity.setSubscriberType(cdrDto.getSubscriberType());
@@ -22,8 +22,8 @@ public class CDRConverter {
 
     public CDRDto convertEntityToDto(CDREntity cdrEntity) {
         CDRDto cdrDto = new CDRDto();
-        cdrDto.setAnum(cdrEntity.getAnum());
-        cdrDto.setBnum(cdrEntity.getBnum());
+        cdrDto.setANUM(cdrEntity.getANUM());
+        cdrDto.setBNUM(cdrEntity.getBNUM());
         cdrDto.setServiceType(cdrEntity.getServiceType());
         cdrDto.setCallCategory(cdrEntity.getCallCategory());
         cdrDto.setSubscriberType(cdrEntity.getSubscriberType());
