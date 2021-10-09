@@ -1,5 +1,6 @@
 package com.interview.rakuten.preinterviewassignment.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.interview.rakuten.preinterviewassignment.dto.CDRDto;
 import com.interview.rakuten.preinterviewassignment.exceptions.CDRException;
 import com.interview.rakuten.preinterviewassignment.exceptions.ResourceNotFoundException;
@@ -10,6 +11,8 @@ import com.interview.rakuten.preinterviewassignment.utils.parseUtils.ParseUtilFa
 import com.interview.rakuten.preinterviewassignment.validators.CDRInputValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +25,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -57,6 +61,24 @@ public class PreInterviewAssignmentController {
         List<CDRDto> cdrDtoList = cdrService.fetchAll();
         return ResponseEntity.ok(cdrDtoList);
     }
+
+    @GetMapping(value = "/cdr/download")
+    public ResponseEntity<Resource> getOutputFile() throws ResourceNotFoundException, CDRException, IOException {
+        List<CDRDto> cdrDtoList = cdrService.fetchAll();
+        Collections.sort(cdrDtoList,
+                (cdrDto1, cdrDto2) -> Double.parseDouble(cdrDto1.getCharge()) < Double.parseDouble(cdrDto1.getCharge()) ? -1 : Double.parseDouble(cdrDto1.getCharge()) == Double.parseDouble(cdrDto1.getCharge()) ? 0 : 1);
+
+        String fileName = uploadFilePath + File.separator + "output"+ File.separator + "CDROUT.json";
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(new File(fileName),cdrDtoList);
+        Resource resource = new UrlResource(fileName);
+        if(resource.exists())
+            return ResponseEntity.ok(resource);
+        else
+            return ResponseEntity.notFound().build();
+    }
+
+
 
     private String getFileType(String fileName) {
        if(fileName.endsWith(".json"))
