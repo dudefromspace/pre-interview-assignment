@@ -16,4 +16,6 @@ public interface CDRService {
     List<CDRDto> fetchAll() throws CDRException;
 
     List<CDRDto> fetchByDate(String date) throws ResourceNotFoundException;
+
+    List<CDRDto> fetchByMaxCharge() throws ResourceNotFoundException;
 }

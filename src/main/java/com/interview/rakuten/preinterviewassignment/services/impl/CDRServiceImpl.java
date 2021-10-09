@@ -103,4 +103,20 @@ public class CDRServiceImpl implements CDRService {
         }
         return cdrDtoList;
     }
+
+    @Override
+    public List<CDRDto> fetchByMaxCharge() throws ResourceNotFoundException {
+        List<CDRDto> cdrDtoList = new ArrayList<>();
+        List<CDREntity> cdrEntityList = cdrRepository.findByMaxCharge();
+        if(!cdrEntityList.isEmpty()){
+            cdrEntityList.forEach(cdrEntity -> {
+                try {
+                    cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
+                } catch (CDRException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        return cdrDtoList;
+    }
 }

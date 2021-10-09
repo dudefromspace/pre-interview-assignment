@@ -12,6 +12,9 @@ import java.util.List;
 @Repository
 public interface CDRRepository extends CrudRepository<CDREntity, Long> {
 
-    @Query(value = "SELECT * FROM CDR cdr WHERE SUBSTR(START_DATE_TIME,1,8) = :date",nativeQuery = true)
+    @Query(value = "SELECT * FROM CDR cdr WHERE SUBSTR(cdr.START_DATE_TIME,1,8) = :date",nativeQuery = true)
     List<CDREntity> findByDate(@Param("date") String date) throws ResourceNotFoundException;
+
+    @Query(value = "SELECT * FROM CDR cdr WHERE cdr.CHARGE = (SELECT MAX(CHARGE) FROM CDR)",nativeQuery = true)
+    List<CDREntity> findByMaxCharge() throws ResourceNotFoundException;
 }

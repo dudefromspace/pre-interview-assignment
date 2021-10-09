@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/preinterviewassignment/api/v1")
@@ -99,6 +100,13 @@ public class PreInterviewAssignmentController {
                 .map(cdrDto -> Integer.parseInt(cdrDto.getUsedAmount().replace("KB","")))
                 .reduce((a,b)->(a + b));
         return ResponseEntity.ok(RoundingUtil.roundVolume(String.valueOf(totalVolume.get())));
+    }
+
+    @GetMapping(value = "/cdr/anum")
+    public ResponseEntity<List<String>> getAnumWithMaxCharges() throws ResourceNotFoundException {
+        List<CDRDto> cdrDtoList = cdrService.fetchByMaxCharge();
+        List<String> anumWithMaxCharges = cdrDtoList.stream().map(cdrDto -> cdrDto.getANUM()).collect(Collectors.toList());
+        return ResponseEntity.ok(anumWithMaxCharges);
     }
 
     private String getFileType(String fileName) {
