@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -69,5 +70,18 @@ public class CDRServiceImpl implements CDRService {
             }
         });
         return cdrDtoListAdded;
+    }
+
+    @Override
+    public List<CDRDto> fetchAll() throws ResourceNotFoundException, CDRException {
+        Iterable<CDREntity> cdrEntities = cdrRepository.findAll();
+        Iterator<CDREntity> iterator = cdrEntities.iterator();
+        CDREntity cdrEntity = null;
+        List<CDRDto> cdrDtoList = new ArrayList<>();
+        while (iterator.hasNext()){
+            cdrEntity = iterator.next();
+            cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
+        }
+        return cdrDtoList;
     }
 }

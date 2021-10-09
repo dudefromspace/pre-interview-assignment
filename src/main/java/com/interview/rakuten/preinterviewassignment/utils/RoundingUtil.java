@@ -20,8 +20,8 @@ public class RoundingUtil {
             volInKB = volInKB.replace("KB","");
         }
         int volume = Integer.parseInt(volInKB);
-        int roundedVolume = volume/60;
-        int extraVolume = volume%60;
+        int roundedVolume = volume/1000;
+        int extraVolume = volume%1000;
         if(extraVolume>0){
             roundedVolume = roundedVolume + 1;
         }

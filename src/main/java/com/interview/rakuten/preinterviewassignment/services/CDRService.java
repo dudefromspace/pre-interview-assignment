@@ -11,4 +11,6 @@ public interface CDRService {
     CDRDto addCDR(CDRDto cdrDto) throws CDRException;
 
     List<CDRDto> addCDR(List<CDRDto> cdrDtoList) throws CDRException;
+
+    List<CDRDto> fetchAll() throws ResourceNotFoundException, CDRException;
 }

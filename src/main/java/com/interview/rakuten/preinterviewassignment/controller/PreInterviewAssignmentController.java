@@ -2,20 +2,19 @@ package com.interview.rakuten.preinterviewassignment.controller;
 
 import com.interview.rakuten.preinterviewassignment.dto.CDRDto;
 import com.interview.rakuten.preinterviewassignment.exceptions.CDRException;
+import com.interview.rakuten.preinterviewassignment.exceptions.ResourceNotFoundException;
+import com.interview.rakuten.preinterviewassignment.exceptions.ValidationException;
 import com.interview.rakuten.preinterviewassignment.services.CDRService;
 import com.interview.rakuten.preinterviewassignment.utils.parseUtils.ParseUtil;
 import com.interview.rakuten.preinterviewassignment.utils.parseUtils.ParseUtilFactory;
+import com.interview.rakuten.preinterviewassignment.validators.CDRInputValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,7 +37,7 @@ public class PreInterviewAssignmentController {
     private CDRService cdrService;
 
     @PostMapping(value = "/cdr/upload")
-    public ResponseEntity<String> uploadCDRFile(@RequestParam ("file") MultipartFile file) throws IOException, CDRException {
+    public ResponseEntity<String> uploadCDRFile(@RequestParam ("file") MultipartFile file) throws IOException, CDRException, ValidationException {
 
         String inputFile = file.getOriginalFilename();
         String fileType = this.getFileType(inputFile);
@@ -47,8 +46,16 @@ public class PreInterviewAssignmentController {
         this.uploadFile(file,fileType);
         File cdrFile = this.convertMultipartFile(file);
         List<CDRDto> cdrDtoList = parseUtil.parse(cdrFile);
+        CDRInputValidator cdrInputValidator = new CDRInputValidator(cdrDtoList);
+        cdrInputValidator.validate();
         List<CDRDto> cdrDtoListAdded = cdrService.addCDR(cdrDtoList);
-        return ResponseEntity.status(HttpStatus.OK).body("Successfully uploaded the CDR data file");
+        return ResponseEntity.status(HttpStatus.OK).body(String.format("Successfully uploaded %s CDR records",cdrDtoListAdded.size()));
+    }
+
+    @GetMapping(value = "/cdr")
+    public ResponseEntity<List<CDRDto>> getCDRs() throws CDRException, ResourceNotFoundException {
+        List<CDRDto> cdrDtoList = cdrService.fetchAll();
+        return ResponseEntity.ok(cdrDtoList);
     }
 
     private String getFileType(String fileName) {

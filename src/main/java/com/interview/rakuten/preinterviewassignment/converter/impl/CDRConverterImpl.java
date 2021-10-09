@@ -4,6 +4,7 @@ import com.interview.rakuten.preinterviewassignment.converter.CDRConverter;
 import com.interview.rakuten.preinterviewassignment.dto.CDRDto;
 import com.interview.rakuten.preinterviewassignment.entity.CDREntity;
 import com.interview.rakuten.preinterviewassignment.exceptions.CDRException;
+import com.interview.rakuten.preinterviewassignment.utils.RoundingUtil;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,7 +36,7 @@ public class CDRConverterImpl implements CDRConverter {
         cdrDto.setCallCategory(cdrEntity.getCallCategory());
         cdrDto.setSubscriberType(cdrEntity.getSubscriberType());
         cdrDto.setStartDateTime(cdrEntity.getStartDateTime());
-        cdrDto.setUsedAmount(cdrEntity.getUsedAmount());
+        cdrDto.setUsedAmount(getNormalisedUsedAmount(cdrEntity.getUsedAmount(),cdrEntity.getServiceType()));
         cdrDto.setId(cdrEntity.getId());
         cdrDto.setCharge(cdrEntity.getCharge());
         return cdrDto;
@@ -88,6 +89,15 @@ public class CDRConverterImpl implements CDRConverter {
             return usedAmount + "s";
         else if(serviceType.equals("3"))
             return usedAmount + "KB";
+        else
+            return "";
+    }
+
+    private String getNormalisedUsedAmount(String usedAmount, String serviceType) {
+        if(serviceType.equals(ServiceType.VOICE.toString()))
+            return RoundingUtil.roundDuration(usedAmount);
+        else if(serviceType.equals(ServiceType.GPRS.toString()))
+            return RoundingUtil.roundDuration(usedAmount);
         else
             return "";
     }
