@@ -1,5 +1,6 @@
 package com.interview.rakuten.preinterviewassignment.utils.parseUtils;
 
+import com.interview.rakuten.preinterviewassignment.exceptions.CDRException;
 import com.opencsv.exceptions.CsvException;
 
 import javax.xml.stream.XMLStreamException;
@@ -9,6 +10,6 @@ import java.util.List;
 
 public interface ParseUtil<T> {
 
-    public List<T> parse(File file) throws IOException, CsvException, XMLStreamException;
+    public List<T> parse(File file) throws CDRException;
 }
 

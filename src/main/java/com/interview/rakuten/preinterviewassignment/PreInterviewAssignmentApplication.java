@@ -14,6 +14,7 @@ import org.springframework.core.io.ResourceLoader;
 
 import java.io.File;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @SpringBootApplication
 public class PreInterviewAssignmentApplication implements CommandLineRunner {
@@ -44,5 +45,10 @@ public class PreInterviewAssignmentApplication implements CommandLineRunner {
 		String hour = startDateTime.substring(8,10);
 		String minute = startDateTime.substring(10,12);
 		String seconds = startDateTime.substring(12,14);*/
+		String FILE_NAME_REGEX_PATTERN = "^CDRs[0-9]{4}$";
+		Pattern p = Pattern.compile(FILE_NAME_REGEX_PATTERN);
+
+		String st = "CDRs0001";
+		System.out.println(p.matcher(st).matches());
 	}
 }

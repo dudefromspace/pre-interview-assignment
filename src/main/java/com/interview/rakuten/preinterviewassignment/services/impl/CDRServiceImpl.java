@@ -12,6 +12,9 @@ import com.interview.rakuten.preinterviewassignment.utils.RoundingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class CDRServiceImpl implements CDRService {
 
@@ -51,5 +54,20 @@ public class CDRServiceImpl implements CDRService {
         cdrEntityAdded = cdrRepository.save(cdrEntity);
         cdrDtoAdded = cdrConverter.convertEntityToDto(cdrEntityAdded);
         return cdrDtoAdded;
+    }
+
+    @Override
+    public List<CDRDto> addCDR(List<CDRDto> cdrDtoList) throws CDRException {
+        List<CDRDto> cdrDtoListAdded = new ArrayList<>();
+        if(cdrDtoList.isEmpty())
+            throw new CDRException("CDR List is empty");
+        cdrDtoList.forEach(cdrDto -> {
+            try {
+                cdrDtoListAdded.add(addCDR(cdrDto));
+            } catch (CDRException e) {
+                e.printStackTrace();
+            }
+        });
+        return cdrDtoListAdded;
     }
 }
