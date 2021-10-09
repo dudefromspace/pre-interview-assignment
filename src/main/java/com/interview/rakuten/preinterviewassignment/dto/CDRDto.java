@@ -21,6 +21,8 @@ public class CDRDto {
     @CsvBindByName
     private String usedAmount;
 
+    private String charge;
+
     public long getId() {
         return id;
     }
@@ -83,5 +85,13 @@ public class CDRDto {
 
     public void setUsedAmount(String usedAmount) {
         this.usedAmount = usedAmount;
+    }
+
+    public String getCharge() {
+        return charge;
+    }
+
+    public void setCharge(String charge) {
+        this.charge = charge;
     }
 }
