@@ -9,13 +9,14 @@ import javax.persistence.*;
 public class CDREntity {
 
     @Id
+    @Column(unique=true, nullable = false)
     @GeneratedValue(strategy= GenerationType.AUTO)
     private long id;
 
     @Column(nullable = false)
     private String ANUM;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String BNUM;
 
     @Column(nullable = false)
@@ -30,10 +31,10 @@ public class CDREntity {
     @Column(nullable = false)
     private String startDateTime;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String usedAmount;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String charge;
 
     public long getId() {

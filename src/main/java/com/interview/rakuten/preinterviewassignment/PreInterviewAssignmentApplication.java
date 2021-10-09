@@ -30,21 +30,6 @@ public class PreInterviewAssignmentApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-//		final Resource fileResource = resourceLoader.getResource("classpath:CDRs0003.json");
-//		File csvFile = fileResource.getFile();
-//		CSVParseUtil csvParseUtil = new CSVParseUtil();
-//		XMLParseUtil xmlParseUtil = new XMLParseUtil();
-//		JsonParseUtil jsonParseUtil = new JsonParseUtil();
-//		List<CDRDto> dtoList = csvParseUtil.parse(csvFile);
-//		List<CDRDto> dtoList = xmlParseUtil.parse(csvFile);
-//		List<CDRDto> dtoList = jsonParseUtil.parse(csvFile);
-//		System.out.println(dtoList);
-		/*String startDateTime = "20210708141050";
-		String month = startDateTime.substring(4,6);
-		String day = startDateTime.substring(6,8);
-		String hour = startDateTime.substring(8,10);
-		String minute = startDateTime.substring(10,12);
-		String seconds = startDateTime.substring(12,14);*/
 		String FILE_NAME_REGEX_PATTERN = "^CDRs[0-9]{4}$";
 		Pattern p = Pattern.compile(FILE_NAME_REGEX_PATTERN);
 
