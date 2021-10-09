@@ -1,15 +1,27 @@
 package com.interview.rakuten.preinterviewassignment.dto;
 
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvBindByPosition;
+
 public class CDRDto {
 
     private long id;
-    private String anum;
-    private String bnum;
+    @CsvBindByName
+    private String ANUM;
+    @CsvBindByName
+    private String BNUM;
+    @CsvBindByName
     private String serviceType;
+    @CsvBindByName
     private String callCategory;
+    @CsvBindByName
     private String subscriberType;
+    @CsvBindByName
     private String startDateTime;
+    @CsvBindByName
     private String usedAmount;
+
+    private String charge;
 
     public long getId() {
         return id;
@@ -19,20 +31,20 @@ public class CDRDto {
         this.id = id;
     }
 
-    public String getAnum() {
-        return anum;
+    public String getANUM() {
+        return ANUM;
     }
 
-    public void setAnum(String anum) {
-        this.anum = anum;
+    public void setANUM(String ANUM) {
+        this.ANUM = ANUM;
     }
 
-    public String getBnum() {
-        return bnum;
+    public String getBNUM() {
+        return BNUM;
     }
 
-    public void setBnum(String bnum) {
-        this.bnum = bnum;
+    public void setBNUM(String BNUM) {
+        this.BNUM = BNUM;
     }
 
     public String getServiceType() {
@@ -73,5 +85,13 @@ public class CDRDto {
 
     public void setUsedAmount(String usedAmount) {
         this.usedAmount = usedAmount;
+    }
+
+    public String getCharge() {
+        return charge;
+    }
+
+    public void setCharge(String charge) {
+        this.charge = charge;
     }
 }
