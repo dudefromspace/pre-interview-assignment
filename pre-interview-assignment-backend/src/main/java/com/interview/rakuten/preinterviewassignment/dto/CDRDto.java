@@ -1,5 +1,6 @@
 package com.interview.rakuten.preinterviewassignment.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 
@@ -22,6 +23,8 @@ public class CDRDto {
     private String usedAmount;
 
     private String charge;
+
+    private String fileName;
 
     public long getId() {
         return id;
@@ -93,5 +96,13 @@ public class CDRDto {
 
     public void setCharge(String charge) {
         this.charge = charge;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

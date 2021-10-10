@@ -1,5 +1,6 @@
 package com.interview.rakuten.preinterviewassignment.converter.impl;
 
+import com.google.common.base.Strings;
 import com.interview.rakuten.preinterviewassignment.converter.CDRConverter;
 import com.interview.rakuten.preinterviewassignment.dto.CDRDto;
 import com.interview.rakuten.preinterviewassignment.entity.CDREntity;
@@ -21,11 +22,12 @@ public class CDRConverterImpl implements CDRConverter {
         cdrEntity.setStartDateTime(cdrDto.getStartDateTime());
         cdrEntity.setUsedAmount(setNormalisedUsedAmount(cdrDto.getUsedAmount(),cdrDto.getServiceType()));
         cdrEntity.setCharge(cdrDto.getCharge());
+        cdrEntity.setFileName(cdrDto.getFileName());
         return cdrEntity;
     }
 
     @Override
-    public CDRDto convertEntityToDto(CDREntity cdrEntity) throws CDRException {
+    public CDRDto convertEntityToDto(CDREntity cdrEntity, boolean ifRounded) throws CDRException {
         if(cdrEntity == null) {
             throw new CDRException("CDR entity is null");
         }
@@ -36,14 +38,19 @@ public class CDRConverterImpl implements CDRConverter {
         cdrDto.setCallCategory(cdrEntity.getCallCategory());
         cdrDto.setSubscriberType(cdrEntity.getSubscriberType());
         cdrDto.setStartDateTime(cdrEntity.getStartDateTime());
-        cdrDto.setUsedAmount(getNormalisedUsedAmount(cdrEntity.getUsedAmount(),cdrEntity.getServiceType()));
+        if (ifRounded) {
+            cdrDto.setUsedAmount(getRoundedUsedAmount(cdrEntity.getUsedAmount(), cdrEntity.getServiceType()));
+        } else {
+            cdrDto.setUsedAmount(cdrEntity.getUsedAmount());
+        }
         cdrDto.setId(cdrEntity.getId());
         cdrDto.setCharge(cdrEntity.getCharge());
+        cdrDto.setFileName(cdrEntity.getFileName());
         return cdrDto;
     }
 
     private String setNormalisedBNUM(String bnum) {
-        if(bnum.isEmpty())
+        if(Strings.isNullOrEmpty(bnum))
             return "";
         int bnumLength = bnum.length();
         if(bnumLength == 10){
@@ -93,7 +100,7 @@ public class CDRConverterImpl implements CDRConverter {
             return "";
     }
 
-    private String getNormalisedUsedAmount(String usedAmount, String serviceType) {
+    private String getRoundedUsedAmount(String usedAmount, String serviceType) {
         if(serviceType.equals(ServiceType.VOICE.toString()))
             return RoundingUtil.roundDuration(usedAmount)+"Minutes";
         else if(serviceType.equals(ServiceType.GPRS.toString()))

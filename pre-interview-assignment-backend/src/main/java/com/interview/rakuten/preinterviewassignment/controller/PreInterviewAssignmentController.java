@@ -3,6 +3,8 @@ package com.interview.rakuten.preinterviewassignment.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.interview.rakuten.preinterviewassignment.converter.CDRConverter;
 import com.interview.rakuten.preinterviewassignment.dto.CDRDto;
+import com.interview.rakuten.preinterviewassignment.dto.GPRSInfoDto;
+import com.interview.rakuten.preinterviewassignment.dto.VoiceCallInfoDto;
 import com.interview.rakuten.preinterviewassignment.exceptions.CDRException;
 import com.interview.rakuten.preinterviewassignment.exceptions.ResourceNotFoundException;
 import com.interview.rakuten.preinterviewassignment.exceptions.ValidationException;
@@ -28,12 +30,11 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping(value = "/preinterviewassignment/api/v1")
 public class PreInterviewAssignmentController {
 
     private static String FILE_NAME_REGEX_PATTERN = "^CDRs[0-9]{4}$";
@@ -56,7 +57,7 @@ public class PreInterviewAssignmentController {
         List<CDRDto> cdrDtoList = parseUtil.parse(cdrFile);
         CDRInputValidator cdrInputValidator = new CDRInputValidator(cdrDtoList);
         cdrInputValidator.validate();
-        List<CDRDto> cdrDtoListAdded = cdrService.addCDR(cdrDtoList);
+        List<CDRDto> cdrDtoListAdded = cdrService.addCDR(cdrDtoList,inputFile);
         return ResponseEntity.status(HttpStatus.OK).body(String.format("Successfully uploaded %s CDR records",cdrDtoListAdded.size()));
     }
 
@@ -70,7 +71,7 @@ public class PreInterviewAssignmentController {
     public ResponseEntity<Resource> getOutputFile() throws CDRException, IOException {
         List<CDRDto> cdrDtoList = cdrService.fetchAll();
         Collections.sort(cdrDtoList,
-                (cdrDto1, cdrDto2) -> Double.parseDouble(cdrDto1.getCharge()) < Double.parseDouble(cdrDto1.getCharge()) ? -1 : Double.parseDouble(cdrDto1.getCharge()) == Double.parseDouble(cdrDto1.getCharge()) ? 0 : 1);
+                (cdrDto1, cdrDto2) -> Double.parseDouble(cdrDto1.getCharge()) < Double.parseDouble(cdrDto2.getCharge()) ? -1 : Double.parseDouble(cdrDto1.getCharge()) == Double.parseDouble(cdrDto2.getCharge()) ? 0 : 1);
 
         String fileName = uploadFilePath + File.separator + "output"+ File.separator + "CDROUT.json";
         ObjectMapper mapper = new ObjectMapper();
@@ -115,7 +116,56 @@ public class PreInterviewAssignmentController {
         return ResponseEntity.ok(anumWithMaxDuration);
     }
 
+    @GetMapping(value = "/cdr/serviceType/maxcharge")
+    public ResponseEntity<List<String>> getServiceTypeWithMaxChargeByDate(@RequestParam ("date") String date) throws ResourceNotFoundException, ValidationException {
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(date);
+        List<CDRDto> cdrDtoList = cdrService.fetchByDate(date);
+        Map<String,Double> map = new HashMap<>();
+        Optional<Double> voiceCharge = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.VOICE.toString()))
+                .map(cdrDto -> Double.parseDouble(cdrDto.getCharge()))
+                .reduce((a,b)->(a+b));
 
+        map.put(CDRConverter.ServiceType.VOICE.toString(),voiceCharge.get());
+
+        Optional<Double> gprsCharge = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.GPRS.toString()))
+                .map(cdrDto -> Double.parseDouble(cdrDto.getCharge()))
+                .reduce((a,b)->(a+b));
+        map.put(CDRConverter.ServiceType.GPRS.toString(),gprsCharge.get());
+
+        Optional<Double> smsCharge = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.SMS.toString()))
+                .map(cdrDto -> Double.parseDouble(cdrDto.getCharge()))
+                .reduce((a,b)->(a+b));
+        map.put(CDRConverter.ServiceType.SMS.toString(),smsCharge.get());
+
+        Map.Entry<String, Double> maxEntry = Collections.max(map.entrySet(), Comparator.comparing(Map.Entry::getValue));
+
+        return ResponseEntity.ok(Arrays.asList(date,maxEntry.getKey(), maxEntry.getValue().toString()));
+    }
+
+    @GetMapping(value = "/cdr/duration/callcategory")
+    public ResponseEntity<List<VoiceCallInfoDto>> getTotalVoiceCallDurationByCategoryAndDate(@RequestParam ("date") String date) throws ResourceNotFoundException, ValidationException {
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(date);
+        List<VoiceCallInfoDto> voiceCallInfoDtoList = cdrService.fetchTotalVoiceCallDurationByCategoryAndDate(date);
+        return ResponseEntity.ok(voiceCallInfoDtoList);
+    }
+
+    @GetMapping(value = "/cdr/volume/subscriberType")
+    public ResponseEntity<List<GPRSInfoDto>> getTotalGPRSVolumeByCategoryAndDate(@RequestParam ("date") String date) throws ResourceNotFoundException, ValidationException {
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(date);
+        List<GPRSInfoDto> gprsInfoDtoList = cdrService.fetchTotalGPRSVolumeBySubscriberTypeAndDate(date);
+        return ResponseEntity.ok(gprsInfoDtoList);
+    }
+
+    @GetMapping(value = "/cdr/chargePerHour")
+    public ResponseEntity<Map<String,String>> getChargePerHour(@RequestParam ("date") String date) throws ResourceNotFoundException, ValidationException {
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(date);
+        Map<String,String> map = cdrService.getChargePerHour(date);
+        return ResponseEntity.ok(map);
+    }
 
     private String getFileType(String fileName) {
        if(fileName.endsWith(".json"))

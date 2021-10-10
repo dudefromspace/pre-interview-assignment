@@ -8,7 +8,7 @@ public interface CDRConverter {
 
     public CDREntity convertDtoToEntity(CDRDto cdrDto) throws CDRException;
 
-    public CDRDto convertEntityToDto(CDREntity cdrEntity) throws CDRException;
+    public CDRDto convertEntityToDto(CDREntity cdrEntity, boolean ifRounded) throws CDRException;
 
     public enum ServiceType {
         VOICE,

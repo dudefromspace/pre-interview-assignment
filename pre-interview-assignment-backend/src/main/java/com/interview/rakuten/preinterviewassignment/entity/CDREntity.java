@@ -37,6 +37,9 @@ public class CDREntity {
     @Column(nullable = false)
     private String charge;
 
+    @Column(nullable = false)
+    private String fileName;
+
     public long getId() {
         return id;
     }
@@ -107,5 +110,13 @@ public class CDREntity {
 
     public void setCharge(String charge) {
         this.charge = charge;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
