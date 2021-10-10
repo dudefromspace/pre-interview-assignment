@@ -14,7 +14,6 @@ import com.interview.rakuten.preinterviewassignment.utils.parseUtils.ParseUtil;
 import com.interview.rakuten.preinterviewassignment.utils.parseUtils.ParseUtilFactory;
 import com.interview.rakuten.preinterviewassignment.validators.CDRInputValidator;
 import com.interview.rakuten.preinterviewassignment.validators.DateTimeFormatValidator;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -118,7 +117,9 @@ public class PreInterviewAssignmentController {
     }
 
     @GetMapping(value = "/cdr/serviceType/maxcharge")
-    public ResponseEntity<List<String>> getServiceTypeWithMaxChargeByDate(@RequestParam ("date") String date) throws ResourceNotFoundException {
+    public ResponseEntity<List<String>> getServiceTypeWithMaxChargeByDate(@RequestParam ("date") String date) throws ResourceNotFoundException, ValidationException {
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(date);
         List<CDRDto> cdrDtoList = cdrService.fetchByDate(date);
         Map<String,Double> map = new HashMap<>();
         Optional<Double> voiceCharge = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.VOICE.toString()))
@@ -143,15 +144,27 @@ public class PreInterviewAssignmentController {
     }
 
     @GetMapping(value = "/cdr/duration/callcategory")
-    public ResponseEntity<List<VoiceCallInfoDto>> getTotalVoiceCallDurationByCategoryAndDate(@RequestParam ("date") String date) throws ResourceNotFoundException {
+    public ResponseEntity<List<VoiceCallInfoDto>> getTotalVoiceCallDurationByCategoryAndDate(@RequestParam ("date") String date) throws ResourceNotFoundException, ValidationException {
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(date);
         List<VoiceCallInfoDto> voiceCallInfoDtoList = cdrService.fetchTotalVoiceCallDurationByCategoryAndDate(date);
         return ResponseEntity.ok(voiceCallInfoDtoList);
     }
 
     @GetMapping(value = "/cdr/volume/subscriberType")
-    public ResponseEntity<List<GPRSInfoDto>> getTotalGPRSVolumeByCategoryAndDate(@RequestParam ("date") String date) throws ResourceNotFoundException {
+    public ResponseEntity<List<GPRSInfoDto>> getTotalGPRSVolumeByCategoryAndDate(@RequestParam ("date") String date) throws ResourceNotFoundException, ValidationException {
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(date);
         List<GPRSInfoDto> gprsInfoDtoList = cdrService.fetchTotalGPRSVolumeBySubscriberTypeAndDate(date);
         return ResponseEntity.ok(gprsInfoDtoList);
+    }
+
+    @GetMapping(value = "/cdr/chargePerHour")
+    public ResponseEntity<Map<String,String>> getChargePerHour(@RequestParam ("date") String date) throws ResourceNotFoundException, ValidationException {
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(date);
+        Map<String,String> map = cdrService.getChargePerHour(date);
+        return ResponseEntity.ok(map);
     }
 
     private String getFileType(String fileName) {

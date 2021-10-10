@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CDRServiceImpl implements CDRService {
@@ -154,6 +155,25 @@ public class CDRServiceImpl implements CDRService {
         gprsInfoDtoList.add(prepaidGPRSInfoDto);
         gprsInfoDtoList.add(postpaidGPRSInfoDto);
         return gprsInfoDtoList;
+    }
+
+    @Override
+    public Map<String,String> getChargePerHour(String date) throws ResourceNotFoundException {
+        List<CDREntity> cdrEntities = cdrRepository.findByDate(date);
+        Map<String,String> map = new HashMap<>();
+        for(int i = 1; i<24; i++) {
+            List<CDREntity> cdrEntityList = new ArrayList<>();
+            for(CDREntity cdrEntity : cdrEntities){
+                if(Integer.parseInt(cdrEntity.getStartDateTime().substring(8,10))== i){
+                    cdrEntityList.add(cdrEntity);
+                }
+            }
+            Optional<Double> totalCharge = cdrEntityList.stream().map(cdrEntity -> Double.parseDouble(cdrEntity.getCharge()))
+                    .reduce((a,b)->(a+b));
+            String period = i + "-" + (i+1);
+            map.put(period,totalCharge.get().toString());
+        }
+        return map;
     }
 
     private VoiceCallInfoDto getVoiceCallInfo(String callCategory,String date) throws ResourceNotFoundException {

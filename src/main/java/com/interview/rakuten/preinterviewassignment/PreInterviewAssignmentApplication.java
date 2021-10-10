@@ -52,5 +52,9 @@ public class PreInterviewAssignmentApplication implements CommandLineRunner {
 		CDRInputValidator validator3 = new CDRInputValidator(dtoList3);
 		validator3.validate();
 		cdrService.addCDR(dtoList3);*/
+		for(int i=1;i<3;i++){
+			String print = i + "-" + (i+1);
+			System.out.println(print);
+		}
 	}
 }

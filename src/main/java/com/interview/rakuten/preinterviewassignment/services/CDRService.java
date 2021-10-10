@@ -8,6 +8,7 @@ import com.interview.rakuten.preinterviewassignment.exceptions.ResourceNotFoundE
 import com.interview.rakuten.preinterviewassignment.exceptions.ValidationException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CDRService {
 
@@ -26,4 +27,6 @@ public interface CDRService {
     List<VoiceCallInfoDto> fetchTotalVoiceCallDurationByCategoryAndDate(String date) throws ResourceNotFoundException;
 
     List<GPRSInfoDto> fetchTotalGPRSVolumeBySubscriberTypeAndDate(String date) throws ResourceNotFoundException;
+
+    Map<String,String> getChargePerHour(String date) throws ResourceNotFoundException;
 }
