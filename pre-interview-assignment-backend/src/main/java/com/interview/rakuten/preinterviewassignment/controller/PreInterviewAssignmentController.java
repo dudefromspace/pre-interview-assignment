@@ -1,14 +1,17 @@
 package com.interview.rakuten.preinterviewassignment.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.interview.rakuten.preinterviewassignment.converter.CDRConverter;
 import com.interview.rakuten.preinterviewassignment.dto.CDRDto;
 import com.interview.rakuten.preinterviewassignment.exceptions.CDRException;
 import com.interview.rakuten.preinterviewassignment.exceptions.ResourceNotFoundException;
 import com.interview.rakuten.preinterviewassignment.exceptions.ValidationException;
 import com.interview.rakuten.preinterviewassignment.services.CDRService;
+import com.interview.rakuten.preinterviewassignment.utils.RoundingUtil;
 import com.interview.rakuten.preinterviewassignment.utils.parseUtils.ParseUtil;
 import com.interview.rakuten.preinterviewassignment.utils.parseUtils.ParseUtilFactory;
 import com.interview.rakuten.preinterviewassignment.validators.CDRInputValidator;
+import com.interview.rakuten.preinterviewassignment.validators.DateTimeFormatValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -27,6 +30,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/preinterviewassignment/api/v1")
@@ -57,13 +62,13 @@ public class PreInterviewAssignmentController {
     }
 
     @GetMapping(value = "/cdr")
-    public ResponseEntity<List<CDRDto>> getCDRs() throws CDRException, ResourceNotFoundException {
+    public ResponseEntity<List<CDRDto>> getCDRs() throws CDRException {
         List<CDRDto> cdrDtoList = cdrService.fetchAll();
         return ResponseEntity.ok(cdrDtoList);
     }
 
     @GetMapping(value = "/cdr/download")
-    public ResponseEntity<Resource> getOutputFile() throws ResourceNotFoundException, CDRException, IOException {
+    public ResponseEntity<Resource> getOutputFile() throws CDRException, IOException {
         List<CDRDto> cdrDtoList = cdrService.fetchAll();
         Collections.sort(cdrDtoList,
                 (cdrDto1, cdrDto2) -> Double.parseDouble(cdrDto1.getCharge()) < Double.parseDouble(cdrDto1.getCharge()) ? -1 : Double.parseDouble(cdrDto1.getCharge()) == Double.parseDouble(cdrDto1.getCharge()) ? 0 : 1);
@@ -72,10 +77,43 @@ public class PreInterviewAssignmentController {
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(new File(fileName),cdrDtoList);
         Resource resource = new UrlResource(fileName);
-        if(resource.exists())
-            return ResponseEntity.ok(resource);
-        else
-            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(resource);
+    }
+
+    @GetMapping(value = "/cdr/duration")
+    public ResponseEntity<String> getTotalDurationByDate(@RequestParam ("date") String date) throws ValidationException, ResourceNotFoundException {
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(date);
+        List<CDRDto> cdrDtoList = cdrService.fetchByDate(date);
+        Optional<Integer> totalDuration = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.VOICE.toString()))
+                .map(cdrDto -> Integer.parseInt(cdrDto.getUsedAmount().replace("s","")))
+                .reduce((a,b)->(a + b));
+        return ResponseEntity.ok(RoundingUtil.roundDuration(String.valueOf(totalDuration.get())));
+    }
+
+    @GetMapping(value = "/cdr/volume")
+    public ResponseEntity<String> getTotalVolumeByDate(@RequestParam ("date") String date) throws ValidationException, ResourceNotFoundException {
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(date);
+        List<CDRDto> cdrDtoList = cdrService.fetchByDate(date);
+        Optional<Integer> totalVolume = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.GPRS.toString()))
+                .map(cdrDto -> Integer.parseInt(cdrDto.getUsedAmount().replace("KB","")))
+                .reduce((a,b)->(a + b));
+        return ResponseEntity.ok(RoundingUtil.roundVolume(String.valueOf(totalVolume.get())));
+    }
+
+    @GetMapping(value = "/cdr/anum/maxcharge")
+    public ResponseEntity<List<String>> getAnumWithMaxCharges() throws ResourceNotFoundException {
+        List<CDRDto> cdrDtoList = cdrService.fetchByMaxCharge();
+        List<String> anumWithMaxCharges = cdrDtoList.stream().map(cdrDto -> cdrDto.getANUM()).collect(Collectors.toList());
+        return ResponseEntity.ok(anumWithMaxCharges);
+    }
+
+    @GetMapping(value = "/cdr/anum/maxduration")
+    public ResponseEntity<List<String>> getAnumWithMaxDuration() throws ResourceNotFoundException {
+        List<CDRDto> cdrDtoList = cdrService.fetchByMaxDuration();
+        List<String> anumWithMaxDuration = cdrDtoList.stream().map(cdrDto -> cdrDto.getANUM()).collect(Collectors.toList());
+        return ResponseEntity.ok(anumWithMaxDuration);
     }
 
 

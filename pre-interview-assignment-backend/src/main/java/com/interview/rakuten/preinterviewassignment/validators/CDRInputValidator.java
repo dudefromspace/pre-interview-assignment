@@ -94,21 +94,9 @@ public class CDRInputValidator {
         if(!startDateTimeRegexPattern.matcher(startDateTime).matches()) {
             throw new ValidationException("Incorrect start date and time");
         }
-        String month = startDateTime.substring(4,6);
-        String day = startDateTime.substring(6,8);
-        String hour = startDateTime.substring(8,10);
-        String minutes = startDateTime.substring(10,12);
-        String seconds = startDateTime.substring(12,14);
-        if(Integer.parseInt(month) < 1 || Integer.parseInt(month) > 12)
-            throw new ValidationException("Incorrect month");
-        if(Integer.parseInt(day) < 1 || Integer.parseInt(day) > 31)
-            throw new ValidationException("Incorrect month");
-        if(Integer.parseInt(hour) < 1 || Integer.parseInt(hour) > 23)
-            throw new ValidationException("Incorrect hour");
-        if(Integer.parseInt(minutes) < 1 || Integer.parseInt(minutes) > 59)
-            throw new ValidationException("Incorrect hour");
-        if(Integer.parseInt(seconds) < 1 || Integer.parseInt(hour) > 59)
-            throw new ValidationException("Incorrect seconds");
+        DateTimeFormatValidator dateTimeFormatValidator = new DateTimeFormatValidator();
+        dateTimeFormatValidator.validateDate(startDateTime.substring(0,8));
+        dateTimeFormatValidator.validateTime(startDateTime.substring(8,14));
     }
 
     private void validateUsedAmount(String usedAmount, String serviceType) throws ValidationException {

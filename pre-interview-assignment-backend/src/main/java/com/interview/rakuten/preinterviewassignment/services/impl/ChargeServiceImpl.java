@@ -37,7 +37,7 @@ public class ChargeServiceImpl implements ChargeService {
     @Override
     public String calculateCharges(String roundedUsedAmount, String chargePerUnit) {
         int usedAmount = roundedUsedAmount.isEmpty()? 0 : Integer.parseInt(roundedUsedAmount);
-        double charges = Integer.parseInt(chargePerUnit);
+        double charges = Double.parseDouble(chargePerUnit);
 
         return String.valueOf(usedAmount==0 ? charges : usedAmount * charges);
     }
