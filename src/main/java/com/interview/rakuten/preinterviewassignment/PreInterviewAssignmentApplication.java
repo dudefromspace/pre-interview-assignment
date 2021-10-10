@@ -3,6 +3,7 @@ package com.interview.rakuten.preinterviewassignment;
 import com.interview.rakuten.preinterviewassignment.dto.CDRDto;
 import com.interview.rakuten.preinterviewassignment.services.CDRService;
 import com.interview.rakuten.preinterviewassignment.utils.parseUtils.CSVParseUtil;
+import com.interview.rakuten.preinterviewassignment.utils.parseUtils.JsonParseUtil;
 import com.interview.rakuten.preinterviewassignment.utils.parseUtils.XMLParseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -12,10 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
 
 @SpringBootApplication
 public class PreInterviewAssignmentApplication implements CommandLineRunner {
@@ -32,11 +30,20 @@ public class PreInterviewAssignmentApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		final Resource fileResource = resourceLoader.getResource("classpath:CDRs_0002.xml");
+		Resource fileResource = resourceLoader.getResource("classpath:CDRs_0002.xml");
 		File xmlFile = fileResource.getFile();
 		XMLParseUtil xmlParseUtil = new XMLParseUtil();
-		List<CDRDto> dtoList = xmlParseUtil.parse(xmlFile);
-		cdrService.addCDR(dtoList);
-		System.out.println(dtoList);
+		List<CDRDto> dtoList1 = xmlParseUtil.parse(xmlFile);
+		cdrService.addCDR(dtoList1);
+		fileResource = resourceLoader.getResource("classpath:CDRs0003.json");
+		File jsonFile = fileResource.getFile();
+		JsonParseUtil jsonParseUtil = new JsonParseUtil();
+		List<CDRDto> dtoList2 = jsonParseUtil.parse(jsonFile);
+		System.out.println(dtoList2);
+		/*fileResource = resourceLoader.getResource("classpath:CDRs0001.csv");
+		File csvFile = fileResource.getFile();
+		CSVParseUtil csvParseUtil = new CSVParseUtil();
+		List<CDRDto> dtoList3 = csvParseUtil.parse(csvFile);
+		System.out.println(dtoList3);*/
 	}
 }
