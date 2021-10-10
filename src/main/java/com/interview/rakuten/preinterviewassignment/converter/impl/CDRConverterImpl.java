@@ -95,9 +95,9 @@ public class CDRConverterImpl implements CDRConverter {
 
     private String getNormalisedUsedAmount(String usedAmount, String serviceType) {
         if(serviceType.equals(ServiceType.VOICE.toString()))
-            return RoundingUtil.roundDuration(usedAmount);
+            return RoundingUtil.roundDuration(usedAmount)+"Minutes";
         else if(serviceType.equals(ServiceType.GPRS.toString()))
-            return RoundingUtil.roundVolume(usedAmount);
+            return RoundingUtil.roundVolume(usedAmount)+"MB";
         else
             return "";
     }
