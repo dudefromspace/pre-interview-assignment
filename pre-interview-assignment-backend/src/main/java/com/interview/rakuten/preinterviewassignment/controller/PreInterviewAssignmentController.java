@@ -34,7 +34,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/preinterviewassignment/api/v1")
 public class PreInterviewAssignmentController {
 
     private static String FILE_NAME_REGEX_PATTERN = "^CDRs[0-9]{4}$";
