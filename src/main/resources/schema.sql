@@ -8,6 +8,7 @@ create table if not exists CDR (
     START_DATE_TIME varchar(14) not null,
     USED_AMOUNT varchar(25),
     CHARGE varchar(25) not null,
+    FILE_NAME varchar(25) not null,
     primary key(id)
 );
 

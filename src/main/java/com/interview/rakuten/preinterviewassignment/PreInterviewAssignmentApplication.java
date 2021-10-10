@@ -5,6 +5,7 @@ import com.interview.rakuten.preinterviewassignment.services.CDRService;
 import com.interview.rakuten.preinterviewassignment.utils.parseUtils.CSVParseUtil;
 import com.interview.rakuten.preinterviewassignment.utils.parseUtils.JsonParseUtil;
 import com.interview.rakuten.preinterviewassignment.utils.parseUtils.XMLParseUtil;
+import com.interview.rakuten.preinterviewassignment.validators.CDRInputValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -30,20 +31,26 @@ public class PreInterviewAssignmentApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		Resource fileResource = resourceLoader.getResource("classpath:CDRs_0002.xml");
-		File xmlFile = fileResource.getFile();
+		Resource fileResource1 = resourceLoader.getResource("classpath:CDRs_0002.xml");
+		/*File xmlFile = fileResource.getFile();
 		XMLParseUtil xmlParseUtil = new XMLParseUtil();
 		List<CDRDto> dtoList1 = xmlParseUtil.parse(xmlFile);
-		cdrService.addCDR(dtoList1);
-		fileResource = resourceLoader.getResource("classpath:CDRs0003.json");
-		File jsonFile = fileResource.getFile();
+		CDRInputValidator validator = new CDRInputValidator(dtoList1);
+		validator.validate();
+		cdrService.addCDR(dtoList1);*/
+		Resource fileResource2 = resourceLoader.getResource("classpath:CDRs0003.json");
+		File jsonFile = fileResource2.getFile();
 		JsonParseUtil jsonParseUtil = new JsonParseUtil();
 		List<CDRDto> dtoList2 = jsonParseUtil.parse(jsonFile);
-		System.out.println(dtoList2);
-		/*fileResource = resourceLoader.getResource("classpath:CDRs0001.csv");
-		File csvFile = fileResource.getFile();
+		/*CDRInputValidator validator2 = new CDRInputValidator(dtoList2);
+		validator2.validate();*/
+		//cdrService.addCDR(dtoList2);
+		/*Resource fileResource3 = resourceLoader.getResource("classpath:CDRs0001.csv");
+		File csvFile = fileResource3.getFile();
 		CSVParseUtil csvParseUtil = new CSVParseUtil();
 		List<CDRDto> dtoList3 = csvParseUtil.parse(csvFile);
-		System.out.println(dtoList3);*/
+		CDRInputValidator validator3 = new CDRInputValidator(dtoList3);
+		validator3.validate();
+		cdrService.addCDR(dtoList3);*/
 	}
 }

@@ -80,10 +80,6 @@ public class XMLParseUtil implements ParseUtil<CDRDto> {
                 if (nextEvent.isEndElement()) {
                     EndElement endElement = nextEvent.asEndElement();
                     if (endElement.getName().getLocalPart().equals("CDR")) {
-                        if(cdrDto.getBNUM() == null)
-                            cdrDto.setBNUM("");
-                        if(cdrDto.getUsedAmount() == null)
-                            cdrDto.setUsedAmount("");
                         cdrDtoList.add(cdrDto);
                         cdrDto = null;
                     }
