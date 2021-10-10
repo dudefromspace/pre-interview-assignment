@@ -1,5 +1,9 @@
 package com.interview.rakuten.preinterviewassignment;
 
+import com.interview.rakuten.preinterviewassignment.dto.CDRDto;
+import com.interview.rakuten.preinterviewassignment.services.CDRService;
+import com.interview.rakuten.preinterviewassignment.utils.parseUtils.CSVParseUtil;
+import com.interview.rakuten.preinterviewassignment.utils.parseUtils.XMLParseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -23,25 +27,16 @@ public class PreInterviewAssignmentApplication implements CommandLineRunner {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
-
+	@Autowired
+	private CDRService cdrService;
 
 	@Override
 	public void run(String... args) throws Exception {
-		/*String FILE_NAME_REGEX_PATTERN = "^CDRs[0-9]{4}$";
-		Pattern p = Pattern.compile(FILE_NAME_REGEX_PATTERN);
-
-		String st = "CDRs0001";
-		System.out.println(p.matcher(st).matches());*/
-		/*String date = "20210807";
-		System.out.println(date.substring(0,4));
-		System.out.println(date.substring(0,4));
-		System.out.println(date.substring(0,4));*/
-		List<Integer> list = new ArrayList<>();
-		list.add(1);
-		list.add(2);
-		list.add(3);list.add(5);
-		list.add(4);list.add(3);list.add(9);
-		Optional<Integer> temp = list.stream().reduce((a, b)-> (a + b));
-		System.out.println(temp.get());
+		final Resource fileResource = resourceLoader.getResource("classpath:CDRs_0002.xml");
+		File xmlFile = fileResource.getFile();
+		XMLParseUtil xmlParseUtil = new XMLParseUtil();
+		List<CDRDto> dtoList = xmlParseUtil.parse(xmlFile);
+		cdrService.addCDR(dtoList);
+		System.out.println(dtoList);
 	}
 }

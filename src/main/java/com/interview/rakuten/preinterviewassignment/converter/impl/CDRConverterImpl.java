@@ -97,7 +97,7 @@ public class CDRConverterImpl implements CDRConverter {
         if(serviceType.equals(ServiceType.VOICE.toString()))
             return RoundingUtil.roundDuration(usedAmount);
         else if(serviceType.equals(ServiceType.GPRS.toString()))
-            return RoundingUtil.roundDuration(usedAmount);
+            return RoundingUtil.roundVolume(usedAmount);
         else
             return "";
     }

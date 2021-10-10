@@ -17,4 +17,9 @@ public interface CDRRepository extends CrudRepository<CDREntity, Long> {
 
     @Query(value = "SELECT * FROM CDR cdr WHERE cdr.CHARGE = (SELECT MAX(CHARGE) FROM CDR)",nativeQuery = true)
     List<CDREntity> findByMaxCharge() throws ResourceNotFoundException;
+
+    @Query(value = "SELECT * FROM CDR WHERE SUBSTR(USED_AMOUNT,1,LENGTH(USED_AMOUNT)-1) = (SELECT MAX(SUBSTR(USED_AMOUNT,1,LENGTH(USED_AMOUNT)-1)) FROM CDR WHERE SERVICE_TYPE = 'VOICE')",nativeQuery = true)
+    List<CDREntity> findByMaxDuration() throws ResourceNotFoundException;
+
+    List<CDREntity> findByServiceTypeAndCallCategory(String serviceType, String callCategory) throws ResourceNotFoundException;
 }

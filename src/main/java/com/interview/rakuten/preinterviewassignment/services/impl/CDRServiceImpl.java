@@ -119,4 +119,26 @@ public class CDRServiceImpl implements CDRService {
         }
         return cdrDtoList;
     }
+
+    @Override
+    public List<CDRDto> fetchByMaxDuration() throws ResourceNotFoundException {
+        List<CDRDto> cdrDtoList = new ArrayList<>();
+        List<CDREntity> cdrEntityList = cdrRepository.findByMaxDuration();
+        if(!cdrEntityList.isEmpty()){
+            cdrEntityList.forEach(cdrEntity -> {
+                try {
+                    cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
+                } catch (CDRException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        return cdrDtoList;
+    }
+
+    @Override
+    public List<CDRDto> fetchByServiceTypeAndCallCategory(String serviceType, String callCategory) throws ResourceNotFoundException {
+
+        return null;
+    }
 }

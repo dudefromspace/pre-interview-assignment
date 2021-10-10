@@ -18,4 +18,8 @@ public interface CDRService {
     List<CDRDto> fetchByDate(String date) throws ResourceNotFoundException;
 
     List<CDRDto> fetchByMaxCharge() throws ResourceNotFoundException;
+
+    List<CDRDto> fetchByMaxDuration() throws ResourceNotFoundException;
+
+    List<CDRDto> fetchByServiceTypeAndCallCategory(String serviceType,String callCategory) throws ResourceNotFoundException;
 }

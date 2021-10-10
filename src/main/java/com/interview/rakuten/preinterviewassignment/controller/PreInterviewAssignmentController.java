@@ -102,12 +102,21 @@ public class PreInterviewAssignmentController {
         return ResponseEntity.ok(RoundingUtil.roundVolume(String.valueOf(totalVolume.get())));
     }
 
-    @GetMapping(value = "/cdr/anum")
+    @GetMapping(value = "/cdr/anum/maxcharge")
     public ResponseEntity<List<String>> getAnumWithMaxCharges() throws ResourceNotFoundException {
         List<CDRDto> cdrDtoList = cdrService.fetchByMaxCharge();
         List<String> anumWithMaxCharges = cdrDtoList.stream().map(cdrDto -> cdrDto.getANUM()).collect(Collectors.toList());
         return ResponseEntity.ok(anumWithMaxCharges);
     }
+
+    @GetMapping(value = "/cdr/anum/maxduration")
+    public ResponseEntity<List<String>> getAnumWithMaxDuration() throws ResourceNotFoundException {
+        List<CDRDto> cdrDtoList = cdrService.fetchByMaxDuration();
+        List<String> anumWithMaxDuration = cdrDtoList.stream().map(cdrDto -> cdrDto.getANUM()).collect(Collectors.toList());
+        return ResponseEntity.ok(anumWithMaxDuration);
+    }
+
+
 
     private String getFileType(String fileName) {
        if(fileName.endsWith(".json"))
