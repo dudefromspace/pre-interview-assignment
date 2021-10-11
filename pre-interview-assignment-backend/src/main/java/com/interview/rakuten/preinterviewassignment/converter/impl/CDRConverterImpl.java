@@ -21,13 +21,14 @@ public class CDRConverterImpl implements CDRConverter {
         cdrEntity.setSubscriberType(setNormalisedSubscriberType(cdrDto.getSubscriberType()));
         cdrEntity.setStartDateTime(cdrDto.getStartDateTime());
         cdrEntity.setUsedAmount(setNormalisedUsedAmount(cdrDto.getUsedAmount(),cdrDto.getServiceType()));
+        cdrEntity.setRoundedUsedAmount(getRoundedUsedAmount(cdrDto.getUsedAmount(), cdrDto.getServiceType()));
         cdrEntity.setCharge(cdrDto.getCharge());
         cdrEntity.setFileName(cdrDto.getFileName());
         return cdrEntity;
     }
 
     @Override
-    public CDRDto convertEntityToDto(CDREntity cdrEntity, boolean ifRounded) throws CDRException {
+    public CDRDto convertEntityToDto(CDREntity cdrEntity) throws CDRException {
         if(cdrEntity == null) {
             throw new CDRException("CDR entity is null");
         }
@@ -38,11 +39,8 @@ public class CDRConverterImpl implements CDRConverter {
         cdrDto.setCallCategory(cdrEntity.getCallCategory());
         cdrDto.setSubscriberType(cdrEntity.getSubscriberType());
         cdrDto.setStartDateTime(cdrEntity.getStartDateTime());
-        if (ifRounded) {
-            cdrDto.setUsedAmount(getRoundedUsedAmount(cdrEntity.getUsedAmount(), cdrEntity.getServiceType()));
-        } else {
-            cdrDto.setUsedAmount(cdrEntity.getUsedAmount());
-        }
+        cdrDto.setUsedAmount(cdrEntity.getUsedAmount());
+        cdrDto.setRoundedUsedAmount(cdrEntity.getRoundedUsedAmount());
         cdrDto.setId(cdrEntity.getId());
         cdrDto.setCharge(cdrEntity.getCharge());
         cdrDto.setFileName(cdrEntity.getFileName());
@@ -101,9 +99,9 @@ public class CDRConverterImpl implements CDRConverter {
     }
 
     private String getRoundedUsedAmount(String usedAmount, String serviceType) {
-        if(serviceType.equals(ServiceType.VOICE.toString()))
+        if(serviceType.equals(ServiceType.VOICE.toString()) || serviceType.equals("1"))
             return RoundingUtil.roundDuration(usedAmount)+"Minutes";
-        else if(serviceType.equals(ServiceType.GPRS.toString()))
+        else if(serviceType.equals(ServiceType.GPRS.toString()) ||serviceType.equals("3") )
             return RoundingUtil.roundVolume(usedAmount)+"MB";
         else
             return "";

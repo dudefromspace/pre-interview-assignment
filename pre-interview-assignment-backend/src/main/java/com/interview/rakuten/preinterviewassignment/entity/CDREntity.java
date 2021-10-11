@@ -34,6 +34,9 @@ public class CDREntity {
     @Column(nullable = true)
     private String usedAmount;
 
+    @Column(nullable = true)
+    private String roundedUsedAmount;
+
     @Column(nullable = false)
     private String charge;
 
@@ -118,5 +121,13 @@ public class CDREntity {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getRoundedUsedAmount() {
+        return roundedUsedAmount;
+    }
+
+    public void setRoundedUsedAmount(String roundedUsedAmount) {
+        this.roundedUsedAmount = roundedUsedAmount;
     }
 }

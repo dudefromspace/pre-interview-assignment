@@ -56,7 +56,7 @@ public class CDRServiceImpl implements CDRService {
         cdrDto.setFileName(fileName);
         cdrEntity = cdrConverter.convertDtoToEntity(cdrDto);
         cdrEntityAdded = cdrRepository.save(cdrEntity);
-        cdrDtoAdded = cdrConverter.convertEntityToDto(cdrEntityAdded,true);
+        cdrDtoAdded = cdrConverter.convertEntityToDto(cdrEntityAdded);
         return cdrDtoAdded;
     }
 
@@ -83,7 +83,7 @@ public class CDRServiceImpl implements CDRService {
         List<CDRDto> cdrDtoList = new ArrayList<>();
         while (iterator.hasNext()){
             cdrEntity = iterator.next();
-            cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity,true));
+            cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
         }
         return cdrDtoList;
     }
@@ -95,7 +95,7 @@ public class CDRServiceImpl implements CDRService {
         if(!cdrEntities.isEmpty()){
             cdrEntities.forEach(cdrEntity -> {
                 try {
-                    cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity,true));
+                    cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
                 } catch (CDRException e) {
                     e.printStackTrace();
                 }
@@ -111,7 +111,7 @@ public class CDRServiceImpl implements CDRService {
         if(!cdrEntityList.isEmpty()){
             cdrEntityList.forEach(cdrEntity -> {
                 try {
-                    cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity,true));
+                    cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
                 } catch (CDRException e) {
                     e.printStackTrace();
                 }
@@ -127,7 +127,7 @@ public class CDRServiceImpl implements CDRService {
         if(!cdrEntityList.isEmpty()){
             cdrEntityList.forEach(cdrEntity -> {
                 try {
-                    cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity,true));
+                    cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
                 } catch (CDRException e) {
                     e.printStackTrace();
                 }

@@ -87,7 +87,7 @@ public class PreInterviewAssignmentController {
         Optional<Integer> totalDuration = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.VOICE.toString()))
                 .map(cdrDto -> Integer.parseInt(cdrDto.getUsedAmount().replace("s","")))
                 .reduce((a,b)->(a + b));
-        return ResponseEntity.ok(RoundingUtil.roundDuration(String.valueOf(totalDuration.get())));
+        return ResponseEntity.ok(RoundingUtil.roundDuration(String.valueOf(totalDuration.get()))+"minutes");
     }
 
     @GetMapping(value = "/cdr/volume")

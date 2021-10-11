@@ -26,6 +26,8 @@ public class CDRDto {
 
     private String fileName;
 
+    private String roundedUsedAmount;
+
     public long getId() {
         return id;
     }
@@ -90,6 +92,14 @@ public class CDRDto {
         this.usedAmount = usedAmount;
     }
 
+    public String getRoundedUsedAmount() {
+        return roundedUsedAmount;
+    }
+
+    public void setRoundedUsedAmount(String roundedUsedAmount) {
+        this.roundedUsedAmount = roundedUsedAmount;
+    }
+
     public String getCharge() {
         return charge;
     }
@@ -105,4 +115,6 @@ public class CDRDto {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+
+
 }
