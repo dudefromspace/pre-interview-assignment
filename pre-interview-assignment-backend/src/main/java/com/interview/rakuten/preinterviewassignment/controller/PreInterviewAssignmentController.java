@@ -62,6 +62,7 @@ public class PreInterviewAssignmentController {
 
     @GetMapping(value = "/cdr")
     public ResponseEntity<List<CDRDto>> getCDRs() throws CDRException {
+        System.out.println("Inside getCDR" );
         List<CDRDto> cdrDtoList = cdrService.fetchAll();
         return ResponseEntity.ok(cdrDtoList);
     }
