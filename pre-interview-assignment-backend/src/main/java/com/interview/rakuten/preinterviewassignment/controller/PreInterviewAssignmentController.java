@@ -73,11 +73,15 @@ public class PreInterviewAssignmentController {
         Collections.sort(cdrDtoList,
                 (cdrDto1, cdrDto2) -> Double.parseDouble(cdrDto1.getCharge()) < Double.parseDouble(cdrDto2.getCharge()) ? -1 : Double.parseDouble(cdrDto1.getCharge()) == Double.parseDouble(cdrDto2.getCharge()) ? 0 : 1);
 
-        String fileName = uploadFilePath + File.separator + "output"+ File.separator + "CDROUT.json";
+        Path dirPath = Paths.get(uploadFilePath + File.separator + "cdr");
+        if(!dirPath.toFile().exists()){
+            dirPath = Files.createDirectory(dirPath);
+        }
+        File downloadFile = new File(dirPath + File.separator+ "CDROUT.json");
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(new File(fileName),cdrDtoList);
-        Resource resource = new UrlResource(fileName);
-        return ResponseEntity.ok(resource);
+        mapper.writeValue(downloadFile,cdrDtoList);
+        Resource resource = new UrlResource(downloadFile.toURI());
+        return ResponseEntity.ok().body(resource);
     }
 
     @GetMapping(value = "/cdr/duration")

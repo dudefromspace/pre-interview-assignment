@@ -9,6 +9,7 @@ create table if not exists CDR (
     USED_AMOUNT varchar(25),
     CHARGE varchar(25) not null,
     FILE_NAME varchar(25) not null,
+    ROUNDED_USED_AMOUNT varchar (25),
     primary key(id)
 );
 
