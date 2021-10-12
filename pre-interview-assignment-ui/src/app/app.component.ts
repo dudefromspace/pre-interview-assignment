@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { combineAll, map } from 'rxjs/operators';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 import { CDRDto } from './model/CDRDto';
 import { Observable } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,6 +13,7 @@ import * as _moment from 'moment';
 import { default as _rollupMoment, Moment } from 'moment';
 
 import { DomSanitizer } from '@angular/platform-browser';
+import { FormControl } from '@angular/forms';
 
 const moment = _rollupMoment || _moment;
 
@@ -52,6 +53,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   fileName = '';
   fileUrl: any;
+  selectedDate = moment(new Date()).format('YYYYMMDD');;
+  date = new FormControl(new Date());
 
   constructor(private http: HttpClient, private sanitizer: DomSanitizer) { }
 
@@ -90,7 +93,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   inputEvent(event: any) {
     // Return date object
     const m: Moment = event.value;
-    console.log(m.format('YYYYMMDD'));
+    this.selectedDate = m.format('YYYYMMDD');
+    console.log("Selected date" + this.selectedDate)
   }
 
   onFileSelected(event: any) {
@@ -129,6 +133,12 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     const blob = new Blob([data], { type: 'text/csv; charset=utf-8' });
     fileSaver.saveAs(blob, filename);
+  }
+
+  getChargePerHour() {
+    console.log("Value of this.selectedDate" + this.selectedDate);
+    const params = new HttpParams().set('date', this.selectedDate);
+    this.http.get<any>('http://localhost:8080/cdr/chargePerHour', { params }).pipe(map(res => res)).subscribe();
   }
 
 

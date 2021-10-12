@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
+import { FormsModule, ReactiveFormsModule  } from '@angular/forms';
+
 
 
 import {A11yModule} from '@angular/cdk/a11y';
@@ -62,7 +64,7 @@ import {OverlayModule} from '@angular/cdk/overlay';
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
-
+    FormsModule,
     A11yModule,
     ClipboardModule,
     CdkStepperModule,
@@ -76,6 +78,7 @@ import {OverlayModule} from '@angular/cdk/overlay';
     MatButtonToggleModule,
     MatCardModule,
     MatCheckboxModule,
+    ReactiveFormsModule,
     MatChipsModule,
     MatStepperModule,
     MatDatepickerModule,
