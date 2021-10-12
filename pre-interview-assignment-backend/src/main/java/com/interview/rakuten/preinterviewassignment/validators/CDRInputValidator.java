@@ -102,10 +102,10 @@ public class CDRInputValidator {
     private void validateUsedAmount(String usedAmount, String serviceType) throws ValidationException {
         if(serviceType.equals("2") && !Strings.isNullOrEmpty(usedAmount)){
             throw new ValidationException("Used amount is not applicable for SMSs");
-        }else if(Strings.isNullOrEmpty(usedAmount)){
+        }else if(!serviceType.equals("2") && Strings.isNullOrEmpty(usedAmount)){
             throw new ValidationException("Used amount cannot be empty");
         }
-        if(!usedAmountRegexPattern.matcher(usedAmount).matches()) {
+        if(!Strings.isNullOrEmpty(usedAmount) && !usedAmountRegexPattern.matcher(usedAmount).matches()) {
             throw new ValidationException("Incorrect used amount");
         }
     }

@@ -5,12 +5,12 @@ import com.interview.rakuten.preinterviewassignment.constants.DBConstants;
 import javax.persistence.*;
 
 @Entity
-@Table(name= DBConstants.CDR_TABLE_NAME, uniqueConstraints = @UniqueConstraint(columnNames="id"))
+@Table(name= DBConstants.CDR_TABLE_NAME)
 public class CDREntity {
 
     @Id
-    @Column(unique=true, nullable = false)
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @Column()
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false)

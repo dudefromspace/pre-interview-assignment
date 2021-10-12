@@ -16,13 +16,16 @@ import com.interview.rakuten.preinterviewassignment.validators.CDRInputValidator
 import com.interview.rakuten.preinterviewassignment.validators.DateTimeFormatValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,6 +37,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 public class PreInterviewAssignmentController {
 
     private static String FILE_NAME_REGEX_PATTERN = "^CDRs[0-9]{4}$";
@@ -51,8 +55,7 @@ public class PreInterviewAssignmentController {
         String fileType = this.getFileType(inputFile);
         ParseUtilFactory factory = new ParseUtilFactory();
         ParseUtil parseUtil = factory.getParseUtil(fileType);
-        this.uploadFile(file,fileType);
-        File cdrFile = this.convertMultipartFile(file);
+        File cdrFile = this.uploadFile(file,fileType);
         List<CDRDto> cdrDtoList = parseUtil.parse(cdrFile);
         CDRInputValidator cdrInputValidator = new CDRInputValidator(cdrDtoList);
         cdrInputValidator.validate();
@@ -67,8 +70,9 @@ public class PreInterviewAssignmentController {
         return ResponseEntity.ok(cdrDtoList);
     }
 
-    @GetMapping(value = "/cdr/download")
-    public ResponseEntity<Resource> getOutputFile() throws CDRException, IOException {
+    @GetMapping(value = "/cdr/download", produces = "text/csv; charset=utf-8")
+    @ResponseStatus(HttpStatus.OK)
+    public Resource getOutputFile(HttpServletResponse response) throws CDRException, IOException {
         List<CDRDto> cdrDtoList = cdrService.fetchAll();
         Collections.sort(cdrDtoList,
                 (cdrDto1, cdrDto2) -> Double.parseDouble(cdrDto1.getCharge()) < Double.parseDouble(cdrDto2.getCharge()) ? -1 : Double.parseDouble(cdrDto1.getCharge()) == Double.parseDouble(cdrDto2.getCharge()) ? 0 : 1);
@@ -77,11 +81,11 @@ public class PreInterviewAssignmentController {
         if(!dirPath.toFile().exists()){
             dirPath = Files.createDirectory(dirPath);
         }
-        File downloadFile = new File(dirPath + File.separator+ "CDROUT.json");
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(downloadFile,cdrDtoList);
-        Resource resource = new UrlResource(downloadFile.toURI());
-        return ResponseEntity.ok().body(resource);
+
+        response.setContentType("text/csv; charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + "CDROUT.json");
+        response.setHeader("filename", "CDROUT.json");
+        return new FileSystemResource(dirPath + File.separator + "CDROUT.json");
     }
 
     @GetMapping(value = "/cdr/duration")
@@ -190,22 +194,28 @@ public class PreInterviewAssignmentController {
         return convertedFile;
     }
 
-    private void uploadFile(MultipartFile file, String fileType) throws IOException {
+    private File uploadFile(MultipartFile file, String fileType) throws IOException {
         if(fileType.equals("JSON")){
             Path dirPath = Paths.get(uploadFilePath + File.separator + "json");
-            dirPath = Files.createDirectory(dirPath);
+            if(!dirPath.toFile().exists()){
+                dirPath = Files.createDirectory(dirPath);
+            }
             File uploadedFile = new File(dirPath + File.separator+ file.getOriginalFilename());
             file.transferTo(uploadedFile);
+            return uploadedFile;
         }else if(fileType.equals("XML")){
             Path dirPath = Paths.get(uploadFilePath + File.separator + "xml");
             dirPath = Files.createDirectory(dirPath);
             File uploadedFile = new File(dirPath + File.separator+ file.getOriginalFilename());
             file.transferTo(uploadedFile);
+            return uploadedFile;
         }else {
             Path dirPath = Paths.get(uploadFilePath + File.separator + "csv");
             dirPath = Files.createDirectory(dirPath);
             File uploadedFile = new File(dirPath + File.separator+ file.getOriginalFilename());
             file.transferTo(uploadedFile);
+            return uploadedFile;
+
         }
     }
 }
