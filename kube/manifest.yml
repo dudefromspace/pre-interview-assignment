@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pre-interview-assignment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pre-interview-assignment
+  template:
+    metadata:
+      labels:
+        app: pre-interview-assignment
+    spec:
+      containers:
+        - name: app
+          image: pre-interview-assignment:0.0.1-SNAPSHOT
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
+          imagePullPolicy: Never
