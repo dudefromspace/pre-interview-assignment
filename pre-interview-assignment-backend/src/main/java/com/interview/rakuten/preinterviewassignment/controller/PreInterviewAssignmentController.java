@@ -34,13 +34,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class PreInterviewAssignmentController {
 
-    private static String FILE_NAME_REGEX_PATTERN = "^CDRs[0-9]{4}$";
+    private static final String FILE_NAME_REGEX_PATTERN = "^CDRs[0-9]{4}$";
+    private static final Pattern fileNameRegexPattern = Pattern.compile(FILE_NAME_REGEX_PATTERN);
 
     @Value("${temp.storage.path}")
     private String uploadFilePath;
@@ -52,6 +54,10 @@ public class PreInterviewAssignmentController {
     public ResponseEntity<String> uploadCDRFile(@RequestParam ("file") MultipartFile file) throws IOException, CDRException, ValidationException {
 
         String inputFile = file.getOriginalFilename();
+
+        if(fileNameRegexPattern.matcher(inputFile.substring(0,inputFile.indexOf("."))).matches()){
+            throw new CDRException("Incompatible file");
+        }
         String fileType = this.getFileType(inputFile);
         ParseUtilFactory factory = new ParseUtilFactory();
         ParseUtil parseUtil = factory.getParseUtil(fileType);
