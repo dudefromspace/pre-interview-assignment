@@ -2,10 +2,10 @@ package com.interview.rakuten.preinterviewassignment.dto;
 
 import java.util.List;
 
-public class VoiceCallInfoDto {
+public class VoiceCallInfoDto extends InfoDto {
 
     private String callCategory;
-    private List<InfoDto> infoDtoList;
+
 
     public String getCallCategory() {
         return callCategory;
@@ -13,13 +13,5 @@ public class VoiceCallInfoDto {
 
     public void setCallCategory(String callCategory) {
         this.callCategory = callCategory;
-    }
-
-    public List<InfoDto> getInfoDtoList() {
-        return infoDtoList;
-    }
-
-    public void setInfoDtoList(List<InfoDto> infoDtoList) {
-        this.infoDtoList = infoDtoList;
     }
 }

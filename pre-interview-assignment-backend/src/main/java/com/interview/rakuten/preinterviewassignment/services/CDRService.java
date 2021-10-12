@@ -20,9 +20,9 @@ public interface CDRService {
 
     List<CDRDto> fetchByDate(String date) throws ResourceNotFoundException;
 
-    List<CDRDto> fetchByMaxCharge() throws ResourceNotFoundException;
+    List<String> fetchAnumByMaxCharge() throws ResourceNotFoundException, CDRException;
 
-    List<CDRDto> fetchByMaxDuration() throws ResourceNotFoundException;
+    List<String> fetchAnumByMaxDuration() throws ResourceNotFoundException, CDRException;
 
     List<VoiceCallInfoDto> fetchTotalVoiceCallDurationByCategoryAndDate(String date) throws ResourceNotFoundException;
 

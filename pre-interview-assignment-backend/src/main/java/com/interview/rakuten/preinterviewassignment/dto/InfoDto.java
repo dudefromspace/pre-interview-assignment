@@ -6,14 +6,6 @@ public class InfoDto {
     private String fileName;
     private String totalChargePerFileAndDay;
 
-    public String getTotalChargePerFileAndDay() {
-        return totalChargePerFileAndDay;
-    }
-
-    public void setTotalChargePerFileAndDay(String totalChargePerFileAndDay) {
-        this.totalChargePerFileAndDay = totalChargePerFileAndDay;
-    }
-
     public String getAbsoluteTotalUsedAmount() {
         return absoluteTotalUsedAmount;
     }
@@ -38,5 +30,11 @@ public class InfoDto {
         this.fileName = fileName;
     }
 
+    public String getTotalChargePerFileAndDay() {
+        return totalChargePerFileAndDay;
+    }
 
+    public void setTotalChargePerFileAndDay(String totalChargePerFileAndDay) {
+        this.totalChargePerFileAndDay = totalChargePerFileAndDay;
+    }
 }

@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { elementAt, map } from 'rxjs/operators';
 import { CDRDto } from './model/CDRDto';
 import { Observable } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
@@ -14,6 +14,7 @@ import { default as _rollupMoment, Moment } from 'moment';
 
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormControl } from '@angular/forms';
+import { VoiceCallInfoDto } from './model/VoiceCallInfoDto';
 
 const moment = _rollupMoment || _moment;
 
@@ -48,18 +49,27 @@ export class AppComponent implements OnInit, AfterViewInit {
   cdrs: CDRDto[] = [];
   /// for mat table
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  displayedColumns: string[] = ['anum', 'bnum', 'callCategory', 'charge', 'fileName', 'id', 'roundedUsedAmount', 'serviceType', 'startDateTime', 'subscriberType', 'usedAmount'];
+  displayedColumns: string[] = ['anum', 'bnum', 'callCategory', 'charge', 'fileName', 'roundedUsedAmount', 'serviceType', 'startDateTime', 'subscriberType', 'usedAmount'];
   dataSource: any;
-
+  voiceCallInfoDto : any;
+  gprsInfoDto :any;
   fileName = '';
   fileUrl: any;
   selectedDate = moment(new Date()).format('YYYYMMDD');;
   date = new FormControl(new Date());
 
+  totalDurationByDate: any;
+  totalVolumeByDate:any;
+anumWithMaxCharge :any;
+anumWithMaxDuration:any;
+serviceWithMaxCharge:any;
+errorMessage: any;
+chargePerHour: any;
   constructor(private http: HttpClient, private sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
-
+    this.getAnumWithMaxCharges().subscribe(x=>this.anumWithMaxCharge = x);
+    this.getAnumWithMaxDuration().subscribe(x => this.anumWithMaxDuration = x)
   }
 
   ngAfterViewInit() {
@@ -68,6 +78,26 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.dataSource = new MatTableDataSource<any>(this.cdrs);
       this.dataSource.paginator = this.paginator;
     })
+  }
+
+  inputEvent(event: any) {
+    const m: Moment = event.value;
+    this.selectedDate = m.format('YYYYMMDD');
+    this.totalDurationByDate = null
+    this.totalVolumeByDate = null
+    this.getTotalVoiceCallDurationByDate(this.selectedDate).subscribe( x => {this.totalDurationByDate = x + ' Minutes'},error => this.errorMessage);
+    this.getTotalVolumeByDate(this.selectedDate).subscribe( x => {this.totalVolumeByDate = x + ' MB'},error => this.errorMessage)
+    this.getServiceTypeWithMaxCharge(this.selectedDate).subscribe( x => {this.serviceWithMaxCharge = x},error => this.errorMessage);
+    this.getTotalVoiceCallDurationByCategoryAndDate(this.selectedDate).subscribe(element =>{
+      this.voiceCallInfoDto = element;
+    },error => this.errorMessage);
+    this.getTotalGPRSVolumeByCategoryAndDate(this.selectedDate).subscribe(element=>{
+        this.gprsInfoDto = element
+    },error => this.errorMessage)
+
+    this.getChargePerHour(this.selectedDate).subscribe(element=>{
+      this.chargePerHour = element
+    }, error=>this.errorMessage);
   }
 
   cdrDownload(): Observable<any> {
@@ -89,28 +119,23 @@ export class AppComponent implements OnInit, AfterViewInit {
     return this.http.get<any>('http://localhost:8080/cdr/anum/maxduration').pipe(map(res => res));
   }
 
+  getTotalVoiceCallDurationByDate(date:string) {
+    const params = new HttpParams().set('date', date);
+    return this.http.get<any>('http://localhost:8080/cdr/duration', { params }).pipe(map(res => res));
+  }
 
-  inputEvent(event: any) {
-    // Return date object
-    const m: Moment = event.value;
-    this.selectedDate = m.format('YYYYMMDD');
-    console.log("Selected date" + this.selectedDate)
+  getTotalVolumeByDate(date:string) {
+    const params = new HttpParams().set('date', date);
+    return this.http.get<any>('http://localhost:8080/cdr/volume', { params }).pipe(map(res => res));
   }
 
   onFileSelected(event: any) {
-
     const file: File = event.target.files[0];
-
     if (file) {
-
       this.fileName = file.name;
-
       const formData = new FormData();
-
       formData.append('file', file);
-
       const upload$ = this.http.post("http://localhost:8080/cdr/upload", formData);
-
       upload$.subscribe();
     }
   }
@@ -123,23 +148,34 @@ export class AppComponent implements OnInit, AfterViewInit {
       observe: 'response',
       responseType: 'text'
     });
-
     download$.subscribe(response => {
       this.saveFile(response.body, "test.txt");
     });
   }
 
   saveFile(data: any, filename: any) {
-
     const blob = new Blob([data], { type: 'text/csv; charset=utf-8' });
     fileSaver.saveAs(blob, filename);
   }
 
-  getChargePerHour() {
-    console.log("Value of this.selectedDate" + this.selectedDate);
-    const params = new HttpParams().set('date', this.selectedDate);
-    this.http.get<any>('http://localhost:8080/cdr/chargePerHour', { params }).pipe(map(res => res)).subscribe();
+  getChargePerHour(date:string) {
+    const params = new HttpParams().set('date', date);
+    return this.http.get<any>('http://localhost:8080/cdr/chargePerHour', { params }).pipe(map(res => res));
   }
 
+  
+  getServiceTypeWithMaxCharge(date:string) {
+    const params = new HttpParams().set('date', date);
+    return this.http.get<any>('http://localhost:8080/cdr/serviceType/maxcharge', { params }).pipe(map(res => res));
+  }
 
+  getTotalVoiceCallDurationByCategoryAndDate(date:string){
+    const params = new HttpParams().set('date', date);
+    return this.http.get<any>('http://localhost:8080/cdr/duration/callcategory', { params }).pipe(map(res => res));
+  }
+
+  getTotalGPRSVolumeByCategoryAndDate(date:string){
+    const params = new HttpParams().set('date', date);
+    return this.http.get<any>('http://localhost:8080/cdr/volume/subscriberType', { params }).pipe(map(res => res));
+  }
 }

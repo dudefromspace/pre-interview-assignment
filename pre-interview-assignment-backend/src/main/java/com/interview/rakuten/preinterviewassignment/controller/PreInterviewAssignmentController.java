@@ -96,7 +96,13 @@ public class PreInterviewAssignmentController {
         Optional<Integer> totalDuration = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.VOICE.toString()))
                 .map(cdrDto -> Integer.parseInt(cdrDto.getUsedAmount().replace("s","")))
                 .reduce((a,b)->(a + b));
-        return ResponseEntity.ok(RoundingUtil.roundDuration(String.valueOf(totalDuration.get()))+"minutes");
+        String response = "";
+        if(totalDuration.isPresent()){
+            response = RoundingUtil.roundDuration( String.valueOf(totalDuration.get()));
+        }else
+            response = "No record exist";
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(value = "/cdr/volume")
@@ -107,20 +113,24 @@ public class PreInterviewAssignmentController {
         Optional<Integer> totalVolume = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.GPRS.toString()))
                 .map(cdrDto -> Integer.parseInt(cdrDto.getUsedAmount().replace("KB","")))
                 .reduce((a,b)->(a + b));
-        return ResponseEntity.ok(RoundingUtil.roundVolume(String.valueOf(totalVolume.get())));
+        String response = "";
+        if(totalVolume.isPresent()){
+            response = RoundingUtil.roundVolume( String.valueOf(totalVolume.get()));
+        }else
+            response = "No record exist";
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(value = "/cdr/anum/maxcharge")
-    public ResponseEntity<List<String>> getAnumWithMaxCharges() throws ResourceNotFoundException {
-        List<CDRDto> cdrDtoList = cdrService.fetchByMaxCharge();
-        List<String> anumWithMaxCharges = cdrDtoList.stream().map(cdrDto -> cdrDto.getANUM()).collect(Collectors.toList());
+    public ResponseEntity<List<String>> getAnumWithMaxCharges() throws ResourceNotFoundException, CDRException {
+        List<String> anumWithMaxCharges = cdrService.fetchAnumByMaxCharge();
         return ResponseEntity.ok(anumWithMaxCharges);
     }
 
     @GetMapping(value = "/cdr/anum/maxduration")
-    public ResponseEntity<List<String>> getAnumWithMaxDuration() throws ResourceNotFoundException {
-        List<CDRDto> cdrDtoList = cdrService.fetchByMaxDuration();
-        List<String> anumWithMaxDuration = cdrDtoList.stream().map(cdrDto -> cdrDto.getANUM()).collect(Collectors.toList());
+    public ResponseEntity<List<String>> getAnumWithMaxDuration() throws ResourceNotFoundException, CDRException {
+        List<String> anumWithMaxDuration = cdrService.fetchAnumByMaxDuration();
         return ResponseEntity.ok(anumWithMaxDuration);
     }
 
@@ -134,17 +144,24 @@ public class PreInterviewAssignmentController {
                 .map(cdrDto -> Double.parseDouble(cdrDto.getCharge()))
                 .reduce((a,b)->(a+b));
 
-        map.put(CDRConverter.ServiceType.VOICE.toString(),voiceCharge.get());
+        if (voiceCharge.isPresent()) {
+            map.put(CDRConverter.ServiceType.VOICE.toString(), voiceCharge.get());
+        }
 
         Optional<Double> gprsCharge = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.GPRS.toString()))
                 .map(cdrDto -> Double.parseDouble(cdrDto.getCharge()))
                 .reduce((a,b)->(a+b));
-        map.put(CDRConverter.ServiceType.GPRS.toString(),gprsCharge.get());
+        if (gprsCharge.isPresent()) {
+            map.put(CDRConverter.ServiceType.GPRS.toString(),gprsCharge.get());
+        }
+
 
         Optional<Double> smsCharge = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.SMS.toString()))
                 .map(cdrDto -> Double.parseDouble(cdrDto.getCharge()))
                 .reduce((a,b)->(a+b));
-        map.put(CDRConverter.ServiceType.SMS.toString(),smsCharge.get());
+        if (smsCharge.isPresent()) {
+            map.put(CDRConverter.ServiceType.SMS.toString(),smsCharge.get());
+        }
 
         Map.Entry<String, Double> maxEntry = Collections.max(map.entrySet(), Comparator.comparing(Map.Entry::getValue));
 

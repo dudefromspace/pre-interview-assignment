@@ -3,7 +3,6 @@ package com.interview.rakuten.preinterviewassignment.services.impl;
 import com.interview.rakuten.preinterviewassignment.converter.CDRConverter;
 import com.interview.rakuten.preinterviewassignment.dto.CDRDto;
 import com.interview.rakuten.preinterviewassignment.dto.GPRSInfoDto;
-import com.interview.rakuten.preinterviewassignment.dto.InfoDto;
 import com.interview.rakuten.preinterviewassignment.dto.VoiceCallInfoDto;
 import com.interview.rakuten.preinterviewassignment.entity.CDREntity;
 import com.interview.rakuten.preinterviewassignment.exceptions.CDRException;
@@ -105,35 +104,68 @@ public class CDRServiceImpl implements CDRService {
     }
 
     @Override
-    public List<CDRDto> fetchByMaxCharge() throws ResourceNotFoundException {
+    public List<String> fetchAnumByMaxCharge() throws ResourceNotFoundException, CDRException {
         List<CDRDto> cdrDtoList = new ArrayList<>();
-        List<CDREntity> cdrEntityList = cdrRepository.findByMaxCharge();
-        if(!cdrEntityList.isEmpty()){
-            cdrEntityList.forEach(cdrEntity -> {
-                try {
-                    cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
-                } catch (CDRException e) {
-                    e.printStackTrace();
-                }
-            });
+        Iterable<CDREntity> cdrEntities = cdrRepository.findAll();
+        Iterator<CDREntity> iterator = cdrEntities.iterator();
+        CDREntity cdrEntity = null;
+        while (iterator.hasNext()){
+            cdrEntity = iterator.next();
+            cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
         }
-        return cdrDtoList;
+        Map<String, Double> map = new HashMap<>();
+        for(CDRDto cdrDto : cdrDtoList){
+            if(map.keySet().contains(cdrDto.getANUM())) {
+                double charge = map.get(cdrDto.getANUM());
+                charge = charge + Double.valueOf(cdrDto.getCharge());
+                map.put(cdrDto.getANUM(),charge);
+            }else {
+                map.put(cdrDto.getANUM(),Double.valueOf(cdrDto.getCharge()));
+            }
+        }
+
+        List<String> anumList = new ArrayList<>();
+        Map.Entry<String, Double> maxEntry = Collections.max(map.entrySet(), Comparator.comparing(Map.Entry::getValue));
+        double maxCharge = maxEntry.getValue();
+        for(String anum : map.keySet()){
+            if(map.get(anum) == (maxCharge)){
+                anumList.add(anum);
+            }
+        }
+        return anumList;
     }
 
     @Override
-    public List<CDRDto> fetchByMaxDuration() throws ResourceNotFoundException {
+    public List<String> fetchAnumByMaxDuration() throws ResourceNotFoundException, CDRException {
         List<CDRDto> cdrDtoList = new ArrayList<>();
-        List<CDREntity> cdrEntityList = cdrRepository.findByMaxDuration();
-        if(!cdrEntityList.isEmpty()){
-            cdrEntityList.forEach(cdrEntity -> {
-                try {
-                    cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
-                } catch (CDRException e) {
-                    e.printStackTrace();
-                }
-            });
+        Iterable<CDREntity> cdrEntities = cdrRepository.findAll();
+        Iterator<CDREntity> iterator = cdrEntities.iterator();
+        CDREntity cdrEntity = null;
+        while (iterator.hasNext()){
+            cdrEntity = iterator.next();
+            cdrDtoList.add(cdrConverter.convertEntityToDto(cdrEntity));
         }
-        return cdrDtoList;
+        Map<String, Integer> map = new HashMap<>();
+        cdrDtoList = cdrDtoList.stream().filter(cdrDto -> cdrDto.getServiceType().equals(CDRConverter.ServiceType.VOICE.toString())).collect(Collectors.toList());
+        for(CDRDto cdrDto : cdrDtoList){
+            if(map.keySet().contains(cdrDto.getANUM())) {
+                int duration = map.get(cdrDto.getANUM());
+                duration = duration + Integer.valueOf(cdrDto.getUsedAmount().replace("s",""));
+                map.put(cdrDto.getANUM(),duration);
+            }else {
+                map.put(cdrDto.getANUM(),Integer.valueOf(cdrDto.getUsedAmount().replace("s","")));
+            }
+        }
+
+        List<String> anumList = new ArrayList<>();
+        Map.Entry<String, Integer> maxEntry = Collections.max(map.entrySet(), Comparator.comparing(Map.Entry::getValue));
+        int maxDuration = maxEntry.getValue();
+        for(String anum : map.keySet()){
+            if(map.get(anum) == (maxDuration)){
+                anumList.add(anum);
+            }
+        }
+        return anumList;
     }
 
     @Override
@@ -161,17 +193,16 @@ public class CDRServiceImpl implements CDRService {
     public Map<String,String> getChargePerHour(String date) throws ResourceNotFoundException {
         List<CDREntity> cdrEntities = cdrRepository.findByDate(date);
         Map<String,String> map = new HashMap<>();
-        for(int i = 1; i<24; i++) {
-            List<CDREntity> cdrEntityList = new ArrayList<>();
-            for(CDREntity cdrEntity : cdrEntities){
-                if(Integer.parseInt(cdrEntity.getStartDateTime().substring(8,10))== i){
-                    cdrEntityList.add(cdrEntity);
-                }
-            }
-            Optional<Double> totalCharge = cdrEntityList.stream().map(cdrEntity -> Double.parseDouble(cdrEntity.getCharge()))
-                    .reduce((a,b)->(a+b));
+        for(CDREntity cdrEntity : cdrEntities){
+            int i = Integer.parseInt(cdrEntity.getStartDateTime().substring(8,10));
             String period = i + "-" + (i+1);
-            map.put(period,totalCharge.get().toString());
+            if(map.keySet().contains(period)){
+                double charge = Double.parseDouble(map.get(period));
+                charge = charge + Double.parseDouble(cdrEntity.getCharge());
+                map.put(period,String.valueOf(charge));
+            }else {
+                map.put(period,cdrEntity.getCharge());
+            }
         }
         return map;
     }
@@ -180,27 +211,23 @@ public class CDRServiceImpl implements CDRService {
         List<CDREntity> cdrEntityList = cdrRepository.findByServiceTypeAndCallCategoryAndDate(CDRConverter.ServiceType.VOICE.toString(), callCategory ,date);
         VoiceCallInfoDto voiceCallInfoDto = new VoiceCallInfoDto();
         voiceCallInfoDto.setCallCategory(callCategory);
-        List<InfoDto> infoDtoList = new ArrayList<>();
         if(!cdrEntityList.isEmpty()){
             Set<String> fileNameSet = new HashSet<>();
             cdrEntityList.forEach(cdrEntity -> {
                 fileNameSet.add(cdrEntity.getFileName().trim());
             });
             fileNameSet.forEach(fileName->{
-                InfoDto infoDto = new InfoDto();
                 Optional<Integer> totalUsedAmount = cdrEntityList.stream().filter(cdrEntity -> cdrEntity.getFileName().equals(fileName))
                         .map(cdrEntity -> Integer.parseInt(cdrEntity.getUsedAmount().replace("s","")))
                         .reduce((a,b)->(a+b));
-                infoDto.setAbsoluteTotalUsedAmount(String.valueOf(totalUsedAmount.get()));
-                infoDto.setRoundedTotalUsedAmount(RoundingUtil.roundDuration(String.valueOf(totalUsedAmount.get())));
-                infoDto.setFileName(fileName);
+                voiceCallInfoDto.setAbsoluteTotalUsedAmount(String.valueOf(totalUsedAmount.get()));
+                voiceCallInfoDto.setRoundedTotalUsedAmount(RoundingUtil.roundDuration(String.valueOf(totalUsedAmount.get())));
+                voiceCallInfoDto.setFileName(fileName);
                 Optional<Double> totalCharge = cdrEntityList.stream().filter(cdrEntity -> cdrEntity.getFileName().equals(fileName))
                         .map(cdrEntity -> Double.parseDouble(cdrEntity.getCharge()))
                         .reduce((a,b)->(a+b));
-                infoDto.setTotalChargePerFileAndDay(String.valueOf(totalCharge.get()));
-                infoDtoList.add(infoDto);
+                voiceCallInfoDto.setTotalChargePerFileAndDay(String.valueOf(totalCharge.get()));
             });
-            voiceCallInfoDto.setInfoDtoList(infoDtoList);
         }
         return voiceCallInfoDto;
     }
@@ -209,27 +236,23 @@ public class CDRServiceImpl implements CDRService {
         List<CDREntity> cdrEntityList = cdrRepository.findByServiceTypeAndSubscriberTypeAndDate(CDRConverter.ServiceType.GPRS.toString(), subscriberType ,date);
         GPRSInfoDto gprsInfoDto = new GPRSInfoDto();
         gprsInfoDto.setSubscriberType(subscriberType);
-        List<InfoDto> infoDtoList = new ArrayList<>();
         if(!cdrEntityList.isEmpty()){
             Set<String> fileNameSet = new HashSet<>();
             cdrEntityList.forEach(cdrEntity -> {
                 fileNameSet.add(cdrEntity.getFileName().trim());
             });
             fileNameSet.forEach(fileName->{
-                InfoDto infoDto = new InfoDto();
                 Optional<Integer> totalUsedAmount = cdrEntityList.stream().filter(cdrEntity -> cdrEntity.getFileName().equals(fileName))
                         .map(cdrEntity -> Integer.parseInt(cdrEntity.getUsedAmount().replace("KB","")))
                         .reduce((a,b)->(a+b));
-                infoDto.setAbsoluteTotalUsedAmount(String.valueOf(totalUsedAmount.get()));
-                infoDto.setRoundedTotalUsedAmount(RoundingUtil.roundVolume(String.valueOf(totalUsedAmount.get())));
-                infoDto.setFileName(fileName);
+                gprsInfoDto.setAbsoluteTotalUsedAmount(String.valueOf(totalUsedAmount.get()));
+                gprsInfoDto.setRoundedTotalUsedAmount(RoundingUtil.roundVolume(String.valueOf(totalUsedAmount.get())));
+                gprsInfoDto.setFileName(fileName);
                 Optional<Double> totalCharge = cdrEntityList.stream().filter(cdrEntity -> cdrEntity.getFileName().equals(fileName))
                         .map(cdrEntity -> Double.parseDouble(cdrEntity.getCharge()))
                         .reduce((a,b)->(a+b));
-                infoDto.setTotalChargePerFileAndDay(String.valueOf(totalCharge.get()));
-                infoDtoList.add(infoDto);
+                gprsInfoDto.setTotalChargePerFileAndDay(String.valueOf(totalCharge.get()));
             });
-            gprsInfoDto.setInfoDtoList(infoDtoList);
         }
         return gprsInfoDto;
     }

@@ -1,93 +1,210 @@
-<div>
-  <mat-form-field class="example-full-width" appearance="fill">
-    <mat-label>Choose a date</mat-label>
-    <input matInput [matDatepicker]="picker" (dateInput)="inputEvent($event)" [formControl]="date">
-    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-datepicker #picker></mat-datepicker>
-  </mat-form-field>
-</div>
+<h1>Pre-Interview-Assignment</h1>
+<mat-card>
+<input type="file" class="file-input"
+       (change)="onFileSelected($event)" #fileUpload>
 
-<div>
-  <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
-</div>
+       <button (click)="fileDownLoad()">download</button>
+      </mat-card>
+       <mat-form-field class="example-full-width" appearance="fill">
+        <mat-label>Choose a date</mat-label>
+        <input matInput [matDatepicker]="picker" (dateInput)="inputEvent($event)">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+      <mat-card>
+        <mat-card-title>CDRs</mat-card-title>
+      <div class="mat-elevation-z8">
+        <table mat-table [dataSource]="dataSource">
+          <!-- Name Column -->
+          <ng-container matColumnDef="anum">
+            <th mat-header-cell *matHeaderCellDef> anum </th>
+            <td mat-cell *matCellDef="let element"> {{element.anum}} </td>
+          </ng-container>
+      
+          <!-- Weight Column -->
+          <ng-container matColumnDef="bnum">
+            <th mat-header-cell *matHeaderCellDef> bnum </th>
+            <td mat-cell *matCellDef="let element"> {{element.bnum}} </td>
+          </ng-container>
+      
+          <!-- Symbol Column -->
+          <ng-container matColumnDef="callCategory">
+            <th mat-header-cell *matHeaderCellDef> callCategory </th>
+            <td mat-cell *matCellDef="let element"> {{element.callCategory}} </td>
+          </ng-container>
+      
+          <!-- Position Column -->
+          <ng-container matColumnDef="charge">
+            <th mat-header-cell *matHeaderCellDef> charge. </th>
+            <td mat-cell *matCellDef="let element"> {{element.charge}} </td>
+          </ng-container>
+      
+          <!-- fileName Column -->
+          <ng-container matColumnDef="fileName">
+            <th mat-header-cell *matHeaderCellDef> fileName </th>
+            <td mat-cell *matCellDef="let element"> {{element.fileName}} </td>
+          </ng-container>
+      
+          <!-- roundedUsedAmount Column -->
+          <ng-container matColumnDef="roundedUsedAmount">
+            <th mat-header-cell *matHeaderCellDef> roundedUsedAmount </th>
+            <td mat-cell *matCellDef="let element"> {{element.roundedUsedAmount}} </td>
+          </ng-container>
+      
+          <!-- serviceType Column -->
+          <ng-container matColumnDef="serviceType">
+            <th mat-header-cell *matHeaderCellDef> serviceType </th>
+            <td mat-cell *matCellDef="let element"> {{element.serviceType}} </td>
+          </ng-container>
+      
+          <!-- startDateTime Column -->
+          <ng-container matColumnDef="startDateTime">
+            <th mat-header-cell *matHeaderCellDef> startDateTime </th>
+            <td mat-cell *matCellDef="let element"> {{element.startDateTime}} </td>
+          </ng-container>
+      
+          <!-- subscriberType Column -->
+          <ng-container matColumnDef="subscriberType">
+            <th mat-header-cell *matHeaderCellDef> subscriberType </th>
+            <td mat-cell *matCellDef="let element"> {{element.subscriberType}} </td>
+          </ng-container>
+      
+          <!-- usedAmount Column -->
+          <ng-container matColumnDef="usedAmount">
+            <th mat-header-cell *matHeaderCellDef> usedAmount </th>
+            <td mat-cell *matCellDef="let element"> {{element.usedAmount}} </td>
+          </ng-container>
+      
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                       showFirstLastButtons 
+                       aria-label="Select page of periodic elements">
+        </mat-paginator>
+      </div>
+      </mat-card>
+<mat-card>
+  <mat-card-title>Info Table</mat-card-title>
+  <table>
+    <thead>
+        <tr>
+            <td class="info-table">Date</td>
+            <td class="info-table">Total Voice Call Duration</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngIf="totalDurationByDate">
+            <td class="info-table">{{selectedDate}}</td>
+            <td class="info-table">{{totalDurationByDate}}</td>
+        </tr>
+    </tbody>
+    <thead>
+      <tr>
+          <td class="info-table">Date</td>
+          <td class="info-table">Total Volume</td>
+      </tr>
+  </thead>
+  <tbody>
+      <tr *ngIf="totalVolumeByDate">
+          <td class="info-table">{{selectedDate}}</td>
+          <td class="info-table">{{totalVolumeByDate}}</td>
+      </tr>
+  </tbody>
+</table> 
+</mat-card>
+<mat-card>
+  <mat-card-title>ANUM with maximum voice call duration</mat-card-title>
+  <div *ngFor = "let anum of anumWithMaxCharge">
+    <div>{{anum}}</div>
+  </div>
+</mat-card>
+<mat-card>
+  <mat-card-title>ANUM with maximum charge</mat-card-title>
+  <div *ngFor = "let anum of anumWithMaxDuration">
+    <div>{{anum}}</div>
+  </div>
+</mat-card>
 
-<button (click)="fileDownLoad()">download</button>
-<button (click)="getChargePerHour()">getChargePerHour</button>
+<mat-card>
+  <mat-card-title>Service Type With Max Charge</mat-card-title>
+  <table>
+    <thead>
+        <tr>
+            <td class="info-table">Date</td>
+            <td class="info-table">Service Type</td>
+            <td class="info-table">Charge</td>
+        </tr>
+    </thead>
+    <tbody>
+        <td *ngFor="let elem of serviceWithMaxCharge">
+            <tr class="info-table">{{elem}}</tr>
+        </td>
+    </tbody>
+</table> 
+</mat-card>
+<mat-card>
+  <mat-card-title>Total Voice call duration by call category</mat-card-title>
+  <table>
+    <thead>
+        <tr>
+            <td class="info-table">Call Category</td>
+            <td class="info-table">Total Used Amount</td>
+            <td class="info-table">Rounded Used Amount</td>
+            <td class="info-table">File Name</td>
+            <td class="info-table">Total charge per file</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let elem of voiceCallInfoDto">
+          <td class="info-table">{{elem.callCategory}}</td>
+          <td class="info-table">{{elem.absoluteTotalUsedAmount}}</td>
+          <td class="info-table">{{elem.roundedTotalUsedAmount}}</td>
+          <td class="info-table">{{elem.fileName}}</td>
+          <td class="info-table">{{elem.totalChargePerFileAndDay}}</td>
+        </tr>
+    </tbody>
+</table> 
+</mat-card>
 
-<div class="mat-elevation-z8">
-  <table mat-table [dataSource]="dataSource">
-
-    <!-- Name Column -->
-    <ng-container matColumnDef="anum">
-      <th mat-header-cell *matHeaderCellDef> anum </th>
-      <td mat-cell *matCellDef="let element"> {{element.anum}} </td>
-    </ng-container>
-
-    <!-- Weight Column -->
-    <ng-container matColumnDef="bnum">
-      <th mat-header-cell *matHeaderCellDef> bnum </th>
-      <td mat-cell *matCellDef="let element"> {{element.bnum}} </td>
-    </ng-container>
-
-    <!-- Symbol Column -->
-    <ng-container matColumnDef="callCategory">
-      <th mat-header-cell *matHeaderCellDef> callCategory </th>
-      <td mat-cell *matCellDef="let element"> {{element.callCategory}} </td>
-    </ng-container>
-
-    <!-- Position Column -->
-    <ng-container matColumnDef="charge">
-      <th mat-header-cell *matHeaderCellDef> charge. </th>
-      <td mat-cell *matCellDef="let element"> {{element.charge}} </td>
-    </ng-container>
-
-    <!-- fileName Column -->
-    <ng-container matColumnDef="fileName">
-      <th mat-header-cell *matHeaderCellDef> fileName </th>
-      <td mat-cell *matCellDef="let element"> {{element.fileName}} </td>
-    </ng-container>
-
-    <!-- id Column -->
-    <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef> id </th>
-      <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-    </ng-container>
-
-
-    <!-- roundedUsedAmount Column -->
-    <ng-container matColumnDef="roundedUsedAmount">
-      <th mat-header-cell *matHeaderCellDef> roundedUsedAmount </th>
-      <td mat-cell *matCellDef="let element"> {{element.roundedUsedAmount}} </td>
-    </ng-container>
-
-    <!-- serviceType Column -->
-    <ng-container matColumnDef="serviceType">
-      <th mat-header-cell *matHeaderCellDef> serviceType </th>
-      <td mat-cell *matCellDef="let element"> {{element.serviceType}} </td>
-    </ng-container>
-
-    <!-- startDateTime Column -->
-    <ng-container matColumnDef="startDateTime">
-      <th mat-header-cell *matHeaderCellDef> startDateTime </th>
-      <td mat-cell *matCellDef="let element"> {{element.startDateTime}} </td>
-    </ng-container>
-
-    <!-- subscriberType Column -->
-    <ng-container matColumnDef="subscriberType">
-      <th mat-header-cell *matHeaderCellDef> subscriberType </th>
-      <td mat-cell *matCellDef="let element"> {{element.subscriberType}} </td>
-    </ng-container>
-
-    <!-- usedAmount Column -->
-    <ng-container matColumnDef="usedAmount">
-      <th mat-header-cell *matHeaderCellDef> usedAmount </th>
-      <td mat-cell *matCellDef="let element"> {{element.usedAmount}} </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-
-  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of periodic elements">
-  </mat-paginator>
-</div>
+<mat-card>
+  <mat-card-title>Total GPRS volume by Subscriber Type</mat-card-title>
+  <table>
+    <thead>
+        <tr>
+            <td class="info-table">Subscriber Type</td>
+            <td class="info-table">Total Used Amount</td>
+            <td class="info-table">Rounded Used Amount</td>
+            <td class="info-table">File Name</td>
+            <td class="info-table">Total charge per file</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let elem of gprsInfoDto">
+          <td class="info-table">{{elem.subscriberType}}</td>
+          <td class="info-table">{{elem.absoluteTotalUsedAmount}}</td>
+          <td class="info-table">{{elem.roundedTotalUsedAmount}}</td>
+          <td class="info-table">{{elem.fileName}}</td>
+          <td class="info-table">{{elem.totalChargePerFileAndDay}}</td>
+        </tr>
+    </tbody>
+</table> 
+</mat-card>
+<mat-card>
+  <mat-card-title>Charge Per Hour</mat-card-title>
+  <table>
+    <thead>
+        <tr>
+            <td class="info-table">Hour</td>
+            <td class="info-table">Charge</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let elem of chargePerHour | keyvalue">
+          <td class="info-table">{{elem.key}}</td>
+          <td class="info-table">{{elem.value}}</td>
+        </tr>
+    </tbody>
+</table> 
+</mat-card>

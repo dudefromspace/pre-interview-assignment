@@ -1,10 +1,8 @@
 package com.interview.rakuten.preinterviewassignment.dto;
 
-import java.util.List;
 
-public class GPRSInfoDto {
+public class GPRSInfoDto extends  InfoDto{
     private String subscriberType;
-    private List<InfoDto> infoDtoList;
 
     public String getSubscriberType() {
         return subscriberType;
@@ -14,11 +12,4 @@ public class GPRSInfoDto {
         this.subscriberType = subscriberType;
     }
 
-    public List<InfoDto> getInfoDtoList() {
-        return infoDtoList;
-    }
-
-    public void setInfoDtoList(List<InfoDto> infoDtoList) {
-        this.infoDtoList = infoDtoList;
-    }
 }
